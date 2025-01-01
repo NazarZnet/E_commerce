@@ -1,0 +1,23 @@
+# Node.js dependencies
+frontend/node_modules/
+
+# Python dependencies
+venv/
+/**/__pycache__/
+
+# Environment files
+*.env
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Ignore SQLite database
+*.sqlite3
+
+# Temporary files
+*.swp
+.vscode/
