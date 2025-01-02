@@ -40,9 +40,11 @@ INSTALLED_APPS = [
     
     #custom apps
     'users',
+    'products',
     
     #libs,
     'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -105,6 +107,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50,  # Number of products per page
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -117,12 +124,14 @@ USE_I18N = True
 
 USE_TZ = True
 
+STATIC_URL = '/static/'
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
-STATIC_URL = 'static/'
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / "static/media"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
