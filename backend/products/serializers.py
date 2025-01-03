@@ -97,7 +97,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "id",
             "name",
             "slug",
-            "description",
+            "icon",
             "products",
             "created_at",
             "updated_at",

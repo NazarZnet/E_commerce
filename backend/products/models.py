@@ -13,7 +13,9 @@ def product_image_upload_path(instance, filename):
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=150, unique=True, blank=True)
-    description = models.TextField(blank=True, null=True)
+    icon = models.TextField(
+        blank=True, null=True, help_text="Store an SVG icon as a string"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

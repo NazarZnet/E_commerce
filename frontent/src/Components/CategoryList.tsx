@@ -1,0 +1,60 @@
+import React from 'react';
+
+interface Category {
+    id: number;
+    name: string;
+    slug: string;
+    icon: string; // SVG content as a string
+}
+
+interface CategoryCarouselProps {
+    categories: Category[];
+}
+
+const CategoryList: React.FC<CategoryCarouselProps> = ({ categories }) => {
+
+    const sanitizeSVG = (svgContent: string): string => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(svgContent, 'image/svg+xml');
+        const svg = doc.querySelector('svg');
+        if (svg) {
+            svg.removeAttribute('width');
+            svg.removeAttribute('height');
+        }
+        return svg?.outerHTML || svgContent;
+    };
+
+
+    return (
+        <div className="bg-gray-100 p-8  shadow-md">
+            {/* Title */}
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-3xl font-bold text-gray-800">
+                    Browse By <span className="text-orange-500">Category</span>
+                </h2>
+            </div>
+
+            {/* Category Grid */}
+            <div className="my-6 flex justify-center gap-8">
+                {categories.map((category) => (
+                    <div
+                        key={category.id}
+                        className=" w-72 flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-lg hover:-translate-y-3 hover:scale-105 transition-all duration-300 "
+                    >
+                        <div
+                            className="text-orange-500 w-20 mb-2"
+                            dangerouslySetInnerHTML={{
+                                __html: sanitizeSVG(category.icon),
+                            }}
+                        />
+                        <p className="text-sm font-semibold text-gray-800 group-hover:text-orange-600">
+                            {category.name}
+                        </p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default CategoryList;

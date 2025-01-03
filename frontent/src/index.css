@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face{
+    font-family: "RubikVinyl";
+    src:local("RubikVinyl-Regular"),
+    url('./assets/fonts/RubikVinyl-Regular.ttf') 
+  }
