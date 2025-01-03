@@ -2,7 +2,7 @@ from django.db import models
 
 from django.db import models
 from django.utils.text import slugify
-from users.models import User  # Custom User model
+from users.models import User
 
 
 def product_image_upload_path(instance, filename):
@@ -59,8 +59,39 @@ class Product(models.Model):
             return self.price - discount
         return self.price
 
+    def average_rating(self):
+        """
+        Calculate and return the average rating of the product.
+        """
+        ratings = self.ratings.all()
+        if ratings.exists():
+            return ratings.aggregate(models.Avg("stars"))["stars__avg"]
+        return None  # No ratings ye
+
     def __str__(self):
         return self.name
+
+
+class ProductRating(models.Model):
+    product = models.ForeignKey(
+        Product, related_name="ratings", on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User, related_name="product_ratings", on_delete=models.CASCADE
+    )
+    stars = models.PositiveIntegerField(
+        choices=[(i, f'{i} Star{"s" if i > 1 else ""}') for i in range(1, 6)], default=5
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = (
+            "product",
+            "user",
+        )  # Prevent duplicate ratings by the same user
+
+    def __str__(self):
+        return f"{self.product.name} - {self.stars} Stars by {self.user.username}"
 
 
 class ProductGallery(models.Model):

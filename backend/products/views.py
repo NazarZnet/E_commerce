@@ -2,8 +2,13 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Product, Category
-from .serializers import ProductSerializer, CategorySerializer, ProductDetailSerializer
+from .models import Product, Category, ProductRating
+from .serializers import (
+    ProductSerializer,
+    CategorySerializer,
+    ProductDetailSerializer,
+    ProductRatingSerializer,
+)
 from .pagination import CustomPagination
 
 
@@ -21,6 +26,16 @@ class CategoryViewSet(ModelViewSet):
             self.action == "list"
         )  # Show products only in the list view
         return context
+
+
+class ProductRatingViewSet(ModelViewSet):
+    queryset = ProductRating.objects.all()
+    serializer_class = ProductRatingSerializer
+
+    def perform_create(self, serializer):
+        # Automatically set the user and product when a rating is created
+        # serializer.save(user=self.request.user)
+        serializer.save()
 
 
 class ProductViewSet(ModelViewSet):

@@ -1,5 +1,18 @@
 from rest_framework import serializers
-from .models import Product, ProductGallery, Category, ProductCharacteristic
+from .models import (
+    Product,
+    ProductGallery,
+    Category,
+    ProductCharacteristic,
+    ProductRating,
+)
+
+
+class ProductRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductRating
+        fields = ["id", "product", "user", "stars", "created_at"]
+        read_only_fields = ["id", "created_at"]
 
 
 class ProductGallerySerializer(serializers.ModelSerializer):
@@ -16,6 +29,7 @@ class ProductCharacteristicSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     gallery = ProductGallerySerializer(many=True, read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
     category = serializers.SerializerMethodField()
     discounted_price = serializers.SerializerMethodField()
 
@@ -29,6 +43,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "price",
             "discount_percentage",
             "discounted_price",
+            "average_rating",
             "stock",
             "category",
             "is_featured",
