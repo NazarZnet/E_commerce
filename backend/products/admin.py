@@ -1,5 +1,20 @@
 from django.contrib import admin
-from .models import Category, Product, ProductGallery, ProductCharacteristic
+from django.utils.html import format_html
+from .models import (
+    Category,
+    Product,
+    ProductGallery,
+    ProductCharacteristic,
+    ProductRating,
+)
+
+
+class ProductRatingInline(admin.TabularInline):
+    model = ProductRating
+    extra = 1
+    fields = ("user", "stars", "created_at")
+    readonly_fields = ("created_at",)
+    ordering = ("-created_at",)
 
 
 class ProductGalleryInline(admin.TabularInline):
@@ -58,7 +73,8 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [
         ProductGalleryInline,
         ProductCharacteristicInline,
-    ]  # Add inlines for gallery and characteristics
+        ProductRatingInline,
+    ]
     readonly_fields = (
         "discounted_price",
     )  # Show discounted price as a read-only calculated field
@@ -70,6 +86,22 @@ class ProductAdmin(admin.ModelAdmin):
         return obj.discounted_price()
 
     discounted_price.short_description = "Discounted Price"
+
+
+@admin.register(ProductRating)
+class ProductRatingAdmin(admin.ModelAdmin):
+    list_display = ("product", "user", "stars_display", "created_at")
+    list_filter = ("stars", "created_at")
+    search_fields = ("product__name", "user__email")
+    ordering = ("-created_at",)
+
+    def stars_display(self, obj):
+        """
+        Render stars as icons in the admin panel.
+        """
+        return format_html("★" * obj.stars + "☆" * (5 - obj.stars))
+
+    stars_display.short_description = "Stars"
 
 
 @admin.register(ProductGallery)

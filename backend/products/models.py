@@ -91,7 +91,7 @@ class ProductRating(models.Model):
         )  # Prevent duplicate ratings by the same user
 
     def __str__(self):
-        return f"{self.product.name} - {self.stars} Stars by {self.user.username}"
+        return f"{self.product.name} - {self.stars} Stars by {self.user.email}"
 
 
 class ProductGallery(models.Model):

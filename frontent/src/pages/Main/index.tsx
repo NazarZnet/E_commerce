@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import FeaturedProducts from "../../Components/FeaturedProducts";
 import backgroundImage from "../../assets/images/header.webp";
-import { getFeaturedProducts, getCategories } from '../../utils/api';
+import { getFeaturedProducts, getCategories, getPopularProducts } from '../../utils/api';
 import CategoryList from "../../Components/CategoryList";
+import Popular from "../../Components/Popular";
 
 export default function Main() {
 
     const [featuredProducts, setFeaturedProducts] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [popular, setPopular] = useState([]);
+
     useEffect(() => {
         async function getProducts() {
             const result = await getFeaturedProducts();
@@ -21,8 +24,15 @@ export default function Main() {
             setCategories(result);
         }
 
+        async function getPopular() {
+            const result = await getPopularProducts(1.0, 2);
+            console.log("PopularProducts:", result);
+            setPopular(result);
+        }
+
         getProducts();
         getCategoryList();
+        getPopular();
     }, []);
 
 
@@ -59,7 +69,7 @@ export default function Main() {
                         <a
                             href="#learn-more"
                             className="bg-transparent border border-white py-3 px-6 rounded-lg text-lg hover:bg-white hover:text-gray-900 transition"
-                        >gvbfvbv
+                        >
                             Learn More
                         </a>
                     </div>
@@ -71,6 +81,10 @@ export default function Main() {
 
             {categories && categories.length > 0 && (
                 <CategoryList categories={categories} />
+            )}
+
+            {popular && popular.length > 0 && (
+                <Popular products={popular} />
             )}
 
 
