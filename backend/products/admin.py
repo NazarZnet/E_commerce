@@ -7,9 +7,26 @@ from .models import (
     ProductCharacteristic,
     ProductRating,
 )
+from unfold.admin import ModelAdmin, TabularInline
+from unfold.contrib.filters.admin import (
+    RangeDateFilter,
+    RangeNumericFilter,
+    SliderNumericFilter,
+)
+from import_export.admin import ImportExportModelAdmin
+from unfold.contrib.import_export.forms import (
+    ExportForm,
+    ImportForm,
+    SelectableFieldsExportForm,
+)
 
 
-class ProductRatingInline(admin.TabularInline):
+class CustomSliderNumericFilter(SliderNumericFilter):
+    MAX_DECIMALS = 2
+    STEP = 10
+
+
+class ProductRatingInline(TabularInline):
     model = ProductRating
     extra = 1
     fields = ("user", "stars", "created_at")
@@ -17,7 +34,7 @@ class ProductRatingInline(admin.TabularInline):
     ordering = ("-created_at",)
 
 
-class ProductGalleryInline(admin.TabularInline):
+class ProductGalleryInline(TabularInline):
     """
     Inline for managing product gallery images within the Product admin.
     """
@@ -27,7 +44,7 @@ class ProductGalleryInline(admin.TabularInline):
     fields = ("image", "caption")  # Fields to display in the inline form
 
 
-class ProductCharacteristicInline(admin.TabularInline):
+class ProductCharacteristicInline(TabularInline):
     """
     Inline for managing product characteristics within the Product admin.
     """
@@ -38,19 +55,24 @@ class ProductCharacteristicInline(admin.TabularInline):
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(ModelAdmin, ImportExportModelAdmin):
+    import_form_class = ImportForm
+    export_form_class = ExportForm
     list_display = ("name", "slug", "created_at", "updated_at")
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ("name",)
-    list_filter = ("created_at", "updated_at")
+    list_filter = (("created_at", RangeDateFilter), ("updated_at", RangeDateFilter))
     readonly_fields = ("created_at", "updated_at")
 
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(ModelAdmin, ImportExportModelAdmin):
     """
     Admin configuration for the Product model.
     """
+
+    import_form_class = ImportForm
+    export_form_class = ExportForm
 
     list_display = (
         "name",
@@ -61,11 +83,16 @@ class ProductAdmin(admin.ModelAdmin):
         "is_featured",
         "created_at",
     )
+    list_editable = ("discount_percentage", "price", "is_featured", "stock")
     list_filter = (
         "is_featured",
         "category",
-        "created_at",
+        ("price", CustomSliderNumericFilter),
+        ("discount_percentage", CustomSliderNumericFilter),
+        ("created_at", RangeDateFilter),
+        ("updated_at", RangeDateFilter),
     )  # Filters for easy navigation
+    list_filter_submit = True
     search_fields = ("name", "description")  # Search functionality
     prepopulated_fields = {
         "slug": ("name",)
@@ -89,7 +116,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProductRating)
-class ProductRatingAdmin(admin.ModelAdmin):
+class ProductRatingAdmin(ModelAdmin):
     list_display = ("product", "user", "stars_display", "created_at")
     list_filter = ("stars", "created_at")
     search_fields = ("product__name", "user__email")
@@ -105,16 +132,16 @@ class ProductRatingAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProductGallery)
-class ProductGalleryAdmin(admin.ModelAdmin):
+class ProductGalleryAdmin(ModelAdmin):
     """
     Admin configuration for the ProductGallery model.
     """
 
-    list_display = ("product", "image", "caption")  # Fields to display in the list view
+    list_display = ("product", "image")  # Fields to display in the list view
 
 
 @admin.register(ProductCharacteristic)
-class ProductCharacteristicAdmin(admin.ModelAdmin):
+class ProductCharacteristicAdmin(ModelAdmin):
     """
     Admin configuration for the ProductCharacteristic model.
     """
