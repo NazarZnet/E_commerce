@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './Components/Layout';
+import ProductDetailsPage from './pages/ProductDetails';
 
 const MainPage = lazy(() => import('./pages/Main'));
 
@@ -11,7 +12,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Layout />}>
             <Route index element={<MainPage />} />
-
+            <Route path="products/:slug" element={<ProductDetailsPage />} />
           </Route>
         </Routes>
       </Suspense>

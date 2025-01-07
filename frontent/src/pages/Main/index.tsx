@@ -3,7 +3,7 @@ import FeaturedProducts from "../../Components/FeaturedProducts";
 import backgroundImage from "../../assets/images/header.webp";
 import { getFeaturedProducts, getCategories, getPopularProducts } from '../../utils/api';
 import CategoryList from "../../Components/CategoryList";
-import Popular from "../../Components/Popular";
+import ProductList from "../../Components/ProductList";
 
 export default function Main() {
 
@@ -84,7 +84,10 @@ export default function Main() {
             )}
 
             {popular && popular.length > 0 && (
-                <Popular products={popular} />
+                <div className="w-full px-6 py-12 bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 shadow-lg">
+
+                    <ProductList products={popular} title="Popular" subtitle="Products" description="Discover our best-selling product loved by customers worldwide." />
+                </div>
             )}
 
 

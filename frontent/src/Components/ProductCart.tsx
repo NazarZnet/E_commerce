@@ -1,11 +1,14 @@
 import React from "react";
 import { Product } from "../interfaces/product";
+import { useNavigate } from "react-router-dom";
 
 interface ProductCardProps {
     product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+    const navigate = useNavigate();
+
     const renderDiscountBadge = () => {
         if (product.discount_percentage && product.discount_percentage > 0) {
             return (
@@ -23,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         const emptyStars = 5 - filledStars - (halfStar ? 1 : 0);
 
         return (
-            <div className="flex items-center gap-1 mt-1 text-orange-500">
+            <div className="  flex items-center gap-1 mt-1 text-orange-500">
                 {Array(filledStars)
                     .fill(0)
                     .map((_, index) => (
@@ -62,8 +65,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         );
     };
 
+    const goToDetails = (slug: string) => {
+        navigate(`/products/${slug}`);
+    }
+
     return (
-        <div className="relative bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition h-[90%]">
+        <div className="relative w-[300px] h-[470px] bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition">
             {/* Discount Badge */}
             {renderDiscountBadge()}
             {/* Product Image */}
@@ -97,6 +104,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         Add to Cart
                     </button>
                     <button className="group bg-transparent border border-orange-500 text-orange-500 py-2 px-4 rounded-lg hover:bg-orange-500 hover:text-white transition w-full"
+                        onClick={() => goToDetails(product.slug)}
                     >
                         Details
                         {/* Description Overlay */}

@@ -9,7 +9,10 @@ from .serializers import (
     ProductDetailSerializer,
     ProductRatingSerializer,
 )
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from .pagination import CustomPagination
+from rest_framework.exceptions import NotFound
 
 
 class CategoryViewSet(ModelViewSet):
@@ -80,3 +83,28 @@ class ProductViewSet(ModelViewSet):
             queryset = queryset.filter(is_featured=True)
 
         return queryset
+
+    @action(detail=True, methods=["get"])
+    def similar(self, request, slug=None):
+        """
+        Custom action to get similar products by category.
+        """
+        try:
+            product = self.get_object()  # Get the current product by slug
+        except Product.DoesNotExist:
+            raise NotFound(detail="Product not found.")
+
+        # Fetch similar products in the same category, excluding the current product
+        similar_products = Product.objects.filter(category=product.category).exclude(
+            slug=product.slug
+        )
+
+        # Apply pagination
+        page = self.paginate_queryset(similar_products)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        # Serialize and return similar products
+        serializer = self.get_serializer(similar_products, many=True)
+        return Response(serializer.data)

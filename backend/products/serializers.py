@@ -70,6 +70,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     gallery = ProductGallerySerializer(many=True, read_only=True)
     category = serializers.SerializerMethodField()
     discounted_price = serializers.SerializerMethodField()
+    average_rating = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Product
@@ -81,6 +82,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "price",
             "discount_percentage",
             "discounted_price",
+            "average_rating",
             "stock",
             "category",
             "is_featured",
