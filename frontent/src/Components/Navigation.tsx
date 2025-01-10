@@ -1,5 +1,6 @@
 import React from "react";
 import logo from "../assets/images/logo.png";
+import { Link } from "react-router-dom";
 
 const Navigation: React.FC = () => {
   return (
@@ -16,16 +17,13 @@ const Navigation: React.FC = () => {
       {/* Center Section: Links */}
       <ul className="flex space-x-6 font-medium">
         <li className="hover:text-orange-500 transition">
-          <a href="#home">Home</a>
+          <Link to={"/"}>Home</Link>
         </li>
         <li className="hover:text-orange-500 transition">
-          <a href="#shop">Shop</a>
+          <Link to={"/products"}>Shop</Link>
         </li>
         <li className="hover:text-orange-500 transition">
           <a href="#categories">Categories</a>
-        </li>
-        <li className="hover:text-orange-500 transition">
-          <a href="#accessories">Accessories</a>
         </li>
       </ul>
 

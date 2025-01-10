@@ -84,6 +84,10 @@ const ProductListPage: React.FC = () => {
           (product) => product.category.name === filters.category
         );
         console.log(`Filtered by category (${filters.category}):`, updatedProducts);
+      } else {
+        // If no category is selected, reset characteristics
+        filters.characteristics = {}; // Reset characteristics
+        console.log("No category selected, ignoring characteristics filters.");
       }
 
       // Filter by price range

@@ -2,12 +2,18 @@ import React from "react";
 import featuredImage from "../assets/images/featured.png";
 import ProductCard from "./ProductCart";
 import { Product } from "../interfaces/product";
+import { useNavigate } from "react-router-dom";
 
 interface FeaturedProductsProps {
     products: Product[];
 }
 
 const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
+    const navigate = useNavigate();
+    const showAllProducts = () => {
+        navigate("/products");
+        window.scrollTo(0, 0);
+    }
     return (
         <div className="p-6 bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 shadow-lg">
             <h2 className="text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
@@ -23,7 +29,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
                     </p>
 
                     {/* Button */}
-                    <button className="bg-orange-500 text-white py-3 px-6 rounded-full text-sm lg:text-base hover:bg-orange-600 shadow-lg transition-all duration-300 transform hover:scale-105">
+                    <button onClick={showAllProducts} className="bg-orange-500 text-white py-3 px-6 rounded-full text-sm lg:text-base hover:bg-orange-600 shadow-lg transition-all duration-300 transform hover:scale-105">
                         Show more
                     </button>
 

@@ -76,7 +76,7 @@ export default function Main() {
                 </div>
             </header>
             {featuredProducts && featuredProducts.length > 0 && (
-                <FeaturedProducts products={featuredProducts} />
+                <FeaturedProducts products={featuredProducts.slice(0, 4)} />
             )}
 
             {categories && categories.length > 0 && (
