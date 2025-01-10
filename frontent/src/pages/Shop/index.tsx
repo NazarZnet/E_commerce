@@ -7,7 +7,7 @@ import Filters from "../../Components/Filters";
 import ProductCard from "../../Components/ProductCart";
 import { Category } from "../../interfaces/category";
 
-const ProductListPage: React.FC = () => {
+const ShopPage: React.FC = () => {
   const { categorySlug } = useParams<{ categorySlug?: string }>();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -93,14 +93,14 @@ const ProductListPage: React.FC = () => {
       // Filter by price range
       if (filters.minPrice !== null) {
         updatedProducts = updatedProducts.filter(
-          (product) => product.discounted_price >= filters.minPrice
+          (product) => filters.minPrice !== null && product.discounted_price >= filters.minPrice
         );
         console.log(`Filtered by min price (${filters.minPrice}):`, updatedProducts);
       }
 
       if (filters.maxPrice !== null) {
         updatedProducts = updatedProducts.filter(
-          (product) => product.discounted_price <= filters.maxPrice
+          (product) => filters.maxPrice !== null && product.discounted_price <= filters.maxPrice
         );
         console.log(`Filtered by max price (${filters.maxPrice}):`, updatedProducts);
       }
@@ -192,4 +192,4 @@ const ProductListPage: React.FC = () => {
   );
 };
 
-export default ProductListPage;
+export default ShopPage;

@@ -4,12 +4,14 @@ import backgroundImage from "../../assets/images/header.webp";
 import { getFeaturedProducts, getCategories, getPopularProducts } from '../../utils/api';
 import CategoryList from "../../Components/CategoryList";
 import ProductList from "../../Components/ProductList";
+import { Product } from "../../interfaces/product";
+import { Category } from "../../interfaces/category";
 
 export default function Main() {
 
-    const [featuredProducts, setFeaturedProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [popular, setPopular] = useState([]);
+    const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [popular, setPopular] = useState<Product[]>([]);
 
     useEffect(() => {
         async function getProducts() {

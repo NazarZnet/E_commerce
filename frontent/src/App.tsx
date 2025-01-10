@@ -1,11 +1,10 @@
 import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./Components/Layout";
-import ProductDetailsPage from "./pages/ProductDetails";
-import ProductListPage from "./pages/ProductList";
 
 const MainPage = lazy(() => import("./pages/Main"));
-
+const ShopPage = lazy(() => import("./pages/Shop"));
+const ProductDetailsPage = lazy(() => import("./pages/ProductDetails"));
 function App() {
   return (
     <Router>
@@ -14,10 +13,10 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<MainPage />} />
             <Route path="products/:slug" element={<ProductDetailsPage />} />
-            <Route path="products" element={<ProductListPage />} />
+            <Route path="products" element={<ShopPage />} />
             <Route
               path="products/:categorySlug"
-              element={<ProductListPage />}
+              element={<ShopPage />}
             />
           </Route>
         </Routes>

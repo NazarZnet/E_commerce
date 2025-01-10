@@ -1,11 +1,6 @@
 import React from 'react';
+import { Category } from '../interfaces/category';
 
-interface Category {
-    id: number;
-    name: string;
-    slug: string;
-    icon: string; // SVG content as a string
-}
 
 interface CategoryCarouselProps {
     categories: Category[];
@@ -41,12 +36,15 @@ const CategoryList: React.FC<CategoryCarouselProps> = ({ categories }) => {
                         key={category.id}
                         className=" w-72 flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-lg hover:-translate-y-3 hover:scale-105 transition-all duration-300 "
                     >
+
                         <div
                             className="text-orange-500 w-20 mb-2"
                             dangerouslySetInnerHTML={{
-                                __html: sanitizeSVG(category.icon),
+                                __html: sanitizeSVG(category.icon || ''),
                             }}
                         />
+
+
                         <p className="text-sm font-semibold text-gray-800 group-hover:text-orange-600">
                             {category.name}
                         </p>
