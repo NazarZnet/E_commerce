@@ -1,8 +1,7 @@
 from django.db import models
-
-from django.db import models
 from django.utils.text import slugify
 from users.models import User
+from django.core.exceptions import ValidationError
 
 
 def product_image_upload_path(instance, filename):
@@ -23,6 +22,31 @@ class Category(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+class CharacteristicType(models.Model):
+    name = models.CharField(max_length=100)
+    data_type = models.CharField(
+        max_length=50,
+        choices=[
+            ("string", "String"),
+            ("integer", "Integer"),
+            ("float", "Float"),
+            ("boolean", "Boolean"),
+        ],
+        default="string",
+    )
+    suffix = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Optional suffix to display with the value, e.g., 'km/h', '%'."
+    )
+    categories = models.ManyToManyField(
+        Category, related_name="characteristics", blank=True
+    )
 
     def __str__(self):
         return self.name
@@ -66,7 +90,7 @@ class Product(models.Model):
         ratings = self.ratings.all()
         if ratings.exists():
             return ratings.aggregate(models.Avg("stars"))["stars__avg"]
-        return None  # No ratings ye
+        return None  # No ratings yet
 
     def __str__(self):
         return self.name
@@ -109,8 +133,34 @@ class ProductCharacteristic(models.Model):
     product = models.ForeignKey(
         Product, related_name="characteristics", on_delete=models.CASCADE
     )
-    name = models.CharField(max_length=100)
+    characteristic_type = models.ForeignKey(
+        CharacteristicType, related_name="product_characteristics", on_delete=models.CASCADE
+    )
     value = models.CharField(max_length=255)
 
-    def __str__(self):
-        return f"{self.name}: {self.value} ({self.product.name})"
+    def clean(self):
+        """
+        Validate the value field based on the data_type of the characteristic_type.
+        """
+        data_type = self.characteristic_type.data_type
+
+        if data_type == "integer":
+            try:
+                int(self.value)
+            except ValueError:
+                raise ValidationError(f"The value for {self.characteristic_type.name} must be an integer.")
+
+        elif data_type == "float":
+            try:
+                float(self.value)
+            except ValueError:
+                raise ValidationError(f"The value for {self.characteristic_type.name} must be a float.")
+
+        elif data_type == "boolean":
+            if self.value.lower() not in ["true", "false"]:
+                raise ValidationError(f"The value for {self.characteristic_type.name} must be 'true' or 'false'.")
+
+    def save(self, *args, **kwargs):
+        # Call clean method to validate before saving
+        self.clean()
+        super().save(*args, **kwargs)

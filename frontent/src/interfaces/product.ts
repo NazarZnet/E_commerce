@@ -7,39 +7,30 @@ export interface Gallery {
 export interface Product {
   id: number;
   name: string;
+  slug: string;
   average_rating: number;
   gallery: Gallery[];
   price: number;
-  category: Category;
+  category: ProductCategory;
+  characteristics: ProductCharacteristic[];
   discounted_price: number;
   discount_percentage: number;
   stock: number;
+  is_featured: boolean;
   description: string;
-  [key: string]: any;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface Characteristic {
+export interface ProductCharacteristic {
+  id: number
   name: string;
   value: string;
+  suffix: string;
 }
 
-export interface Category {
+export interface ProductCategory {
   name: string;
   slug: string;
 }
 
-export interface ProductDetails {
-  id: number;
-  name: string;
-  slug: string;
-  average_rating: number;
-  description: string;
-  price: number;
-  discount_percentage: number;
-  discounted_price: number;
-  stock: number;
-  category: Category;
-  is_featured: boolean;
-  gallery: Gallery[];
-  characteristics: Characteristic[];
-}

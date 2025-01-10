@@ -6,6 +6,7 @@ from .models import (
     ProductGallery,
     ProductCharacteristic,
     ProductRating,
+    CharacteristicType,
 )
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.contrib.filters.admin import (
@@ -17,7 +18,6 @@ from import_export.admin import ImportExportModelAdmin
 from unfold.contrib.import_export.forms import (
     ExportForm,
     ImportForm,
-    SelectableFieldsExportForm,
 )
 
 
@@ -40,18 +40,23 @@ class ProductGalleryInline(TabularInline):
     """
 
     model = ProductGallery
-    extra = 1  # Number of empty forms to display
+    extra = 1
     fields = ("image", "caption")  # Fields to display in the inline form
 
-
 class ProductCharacteristicInline(TabularInline):
-    """
-    Inline for managing product characteristics within the Product admin.
-    """
-
     model = ProductCharacteristic
-    extra = 1  # Number of empty forms to display
-    fields = ("name", "value")  # Fields to display in the inline form
+    extra = 1
+
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        if db_field.name == "characteristic_type":
+            if request.resolver_match and "object_id" in request.resolver_match.kwargs:
+                product_id = request.resolver_match.kwargs["object_id"]
+                product = Product.objects.filter(pk=product_id).first()
+                if product and product.category:
+                    kwargs["queryset"] = CharacteristicType.objects.filter(
+                        categories=product.category
+                    )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(Category)
@@ -146,8 +151,15 @@ class ProductCharacteristicAdmin(ModelAdmin):
     Admin configuration for the ProductCharacteristic model.
     """
 
-    list_display = ("product", "name", "value")  # Fields to display in the list view
+    list_display = ("product", "characteristic_type", "value")  # Fields to display in the list view
     search_fields = (
         "product__name",
-        "name",
+        "characteristic_type__name",
     )  # Search by product name and characteristic name
+
+
+
+@admin.register(CharacteristicType)
+class CharacteristicTypeAdmin(ModelAdmin):
+    list_display = ("name", "data_type", "suffix")
+    filter_horizontal = ("categories",)  # Easier UI for many-to-many relationships

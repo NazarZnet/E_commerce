@@ -5,12 +5,13 @@ import { Product } from "../../interfaces/product";
 import { getCategories } from "../../utils/api";
 import Filters from "../../Components/Filters";
 import ProductCard from "../../Components/ProductCart";
+import { Category } from "../../interfaces/category";
 
 const ProductListPage: React.FC = () => {
   const { categorySlug } = useParams<{ categorySlug?: string }>();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [maxProductPrice, setMaxProductPrice] = useState<number>(5000);
 
   useEffect(() => {
@@ -18,7 +19,8 @@ const ProductListPage: React.FC = () => {
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
-        setCategories(data.map((cat: any) => cat.name));
+        console.log("Categories info:", data);
+        setCategories(data);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -30,6 +32,7 @@ const ProductListPage: React.FC = () => {
         const response = await fetch("/api/products");
         if (response.ok) {
           const data = await response.json();
+          console.log("Products: ", data);
           setProducts(data.results);
           setFilteredProducts(data.results);
           const maxPrice = Math.max(
@@ -65,31 +68,84 @@ const ProductListPage: React.FC = () => {
       category: string | null;
       minPrice: number | null;
       maxPrice: number | null;
+      characteristics?: Record<string, string | number | boolean | { min?: number; max?: number }>;
     }) => {
+      console.log("Filters received:", filters);
+
       let updatedProducts = [...products];
 
+      // Filter by category
       if (filters.category) {
         updatedProducts = updatedProducts.filter(
-          (product) => product.category.name === filters.category,
+          (product) => product.category.name === filters.category
         );
+        console.log(`Filtered by category (${filters.category}):`, updatedProducts);
       }
 
+      // Filter by price range
       if (filters.minPrice !== null) {
         updatedProducts = updatedProducts.filter(
-          (product) => product.discounted_price >= filters.minPrice,
+          (product) => product.discounted_price >= filters.minPrice
         );
+        console.log(`Filtered by min price (${filters.minPrice}):`, updatedProducts);
       }
 
       if (filters.maxPrice !== null) {
         updatedProducts = updatedProducts.filter(
-          (product) => product.discounted_price <= filters.maxPrice,
+          (product) => product.discounted_price <= filters.maxPrice
         );
+        console.log(`Filtered by max price (${filters.maxPrice}):`, updatedProducts);
       }
 
+      // Filter by characteristics
+      if (filters.characteristics) {
+        Object.entries(filters.characteristics).forEach(([key, filterValue]) => {
+          console.log(`Applying filter for characteristic: ${key}, value:`, filterValue);
+          console.log("Type:", typeof filterValue);
+          updatedProducts = updatedProducts.filter((product) => {
+            const characteristic = product.characteristics.find(
+              (char) => char.name === key
+            );
+
+            if (!characteristic) {
+              console.log(`Characteristic (${key}) not found in product:`, product);
+              return false;
+            }
+
+            // Handle boolean filter
+            if (typeof filterValue === "boolean") {
+              return filterValue === (characteristic.value.toLowerCase() === "true");
+            }
+
+            // Handle numeric range filter
+            if (
+              typeof filterValue === "object" &&
+              "min" in filterValue &&
+              "max" in filterValue
+            ) {
+              const numericValue = Number(characteristic.value);
+              const min = filterValue.min ?? -Infinity;
+              const max = filterValue.max ?? Infinity;
+              console.log(
+                `Checking if ${numericValue} is between ${min} and ${max}`
+              );
+              return numericValue >= min && numericValue <= max;
+            }
+
+            // Handle exact match filter for strings
+            return characteristic.value === String(filterValue);
+          });
+          console.log(`Filtered by characteristic (${key}):`, updatedProducts);
+        });
+      }
+
+      console.log("Final filtered products:", updatedProducts);
       setFilteredProducts(updatedProducts);
     },
-    [products],
+    [products]
   );
+
+
 
   return (
     <div className="bg-gray-100 min-h-screen p-4">

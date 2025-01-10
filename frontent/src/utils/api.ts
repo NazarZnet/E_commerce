@@ -1,5 +1,5 @@
 import { Category } from "../interfaces/category";
-import { Product, ProductDetails } from "../interfaces/product";
+import { Product } from "../interfaces/product";
 
 const ApiBase = '/api';
 
@@ -90,7 +90,7 @@ export const getPopularProducts = async (
     }
 };
 // Fetch Product Details
-export const getProductDetails = async (slug: string): Promise<ProductDetails | null> => {
+export const getProductDetails = async (slug: string): Promise<Product | null> => {
     try {
         const response = await fetch(`${ApiBase}/products/${slug}`, {
             method: 'GET',
@@ -105,7 +105,7 @@ export const getProductDetails = async (slug: string): Promise<ProductDetails | 
         }
 
         const product = await response.json();
-        return product as ProductDetails;
+        return product as Product;
     } catch (error) {
         console.error('Error fetching product details:', error);
         return null;

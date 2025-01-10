@@ -6,7 +6,6 @@ from .models import Product, Category, ProductRating
 from .serializers import (
     ProductSerializer,
     CategorySerializer,
-    ProductDetailSerializer,
     ProductRatingSerializer,
 )
 from rest_framework.decorators import action
@@ -48,6 +47,7 @@ class ProductViewSet(ModelViewSet):
 
     queryset = Product.objects.all()
     pagination_class = CustomPagination
+    serializer_class=ProductSerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_field = "slug"  # Use slug for product URLs
 
@@ -58,13 +58,6 @@ class ProductViewSet(ModelViewSet):
     ordering_fields = ["price", "created_at", "updated_at"]
     ordering = ["-created_at"]  # Default ordering
 
-    def get_serializer_class(self):
-        """
-        Use a detailed serializer for retrieve actions.
-        """
-        if self.action == "retrieve":
-            return ProductDetailSerializer
-        return ProductSerializer
 
     def get_queryset(self):
         """
