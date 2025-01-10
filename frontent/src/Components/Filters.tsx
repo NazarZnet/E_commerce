@@ -25,6 +25,8 @@ const Filters: React.FC<FiltersProps> = ({
     0,
     maxProductPrice,
   ]);
+  console.log("Price range:", maxProductPrice, priceRange);
+
   const [characteristicFilters, setCharacteristicFilters] = useState<
     Record<string, string | number | boolean | { min?: number; max?: number }>
   >({});
@@ -42,17 +44,40 @@ const Filters: React.FC<FiltersProps> = ({
 
       currentCategory.characteristics.forEach((characteristic) => {
         if (characteristic.data_type === "integer") {
-          initialCharacteristicFilters[characteristic.name] = { min: 0, max: 100 }; // Default min/max
+          const maxCharacteristicValue = categories
+            .flatMap((category) => category.products)
+            .flatMap((product) => product.characteristics)
+            .filter((char) => char.name === characteristic.name)
+            .reduce((max, char) => {
+              const numericValue = Number(char.value);
+              return isNaN(numericValue) ? max : Math.max(max, numericValue);
+            }, 0);
+
+          initialCharacteristicFilters[characteristic.name] = {
+            min: 0,
+            max: maxCharacteristicValue || 100,
+          };
         } else if (characteristic.data_type === "boolean") {
-          initialCharacteristicFilters[characteristic.name] = false; // Default for boolean
+          initialCharacteristicFilters[characteristic.name] = false;
         } else if (characteristic.data_type === "string") {
-          initialCharacteristicFilters[characteristic.name] = ""; // Default for string
+          const allValues = [
+            ...new Set(
+              categories
+                .flatMap((cat) => cat.products)
+                .flatMap((prod) => prod.characteristics)
+                .filter((char) => char.name === characteristic.name)
+                .map((char) => char.value)
+            ),
+          ];
+          initialCharacteristicFilters[characteristic.name] = allValues.join(
+            ","
+          ); // All values checked by default
         }
       });
 
       setCharacteristicFilters(initialCharacteristicFilters);
     }
-  }, [currentCategory]);
+  }, [currentCategory, categories]);
 
   useEffect(() => {
     onFilterChange({
@@ -87,9 +112,26 @@ const Filters: React.FC<FiltersProps> = ({
     }));
   };
 
+  const handleCheckboxChange = (
+    characteristic: CategoryCharacteristic,
+    value: string
+  ) => {
+    setCharacteristicFilters((prev) => {
+      const currentValue = prev[characteristic.name] as string;
+      const selectedValues = currentValue ? currentValue.split(",") : [];
+      const updatedValues = selectedValues.includes(value)
+        ? selectedValues.filter((v) => v !== value) // Uncheck
+        : [...selectedValues, value]; // Check
+
+      return {
+        ...prev,
+        [characteristic.name]: updatedValues.join(","),
+      };
+    });
+  };
+
   return (
     <div className="absolute top-20 left-0 z-40">
-      {/* Filters Button */}
       <button
         onClick={() => setShowFilters((prev) => !prev)}
         className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition w-full"
@@ -97,12 +139,10 @@ const Filters: React.FC<FiltersProps> = ({
         Filters
       </button>
 
-      {/* Filters List */}
       {showFilters && (
         <div className="absolute bg-white p-4 rounded-lg shadow-md w-[400px] mt-2">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Filters</h2>
 
-          {/* Category Filter */}
           <div className="mb-4">
             <label className="block text-gray-600 mb-2">Category</label>
             <select
@@ -144,19 +184,15 @@ const Filters: React.FC<FiltersProps> = ({
               <input
                 type="text"
                 placeholder="Min"
-                value={minPrice}
-                onChange={(e) =>
-                  setMinPrice(e.target.value)
-                }
+                value={priceRange[0]}
+                onChange={(e) => setMinPrice(e.target.value)}
                 className="w-1/2 p-2 border border-gray-300 rounded"
               />
               <input
                 type="text"
                 placeholder="Max"
-                value={maxPrice}
-                onChange={(e) =>
-                  setMaxPrice(e.target.value)
-                }
+                value={priceRange[1]}
+                onChange={(e) => setMaxPrice(e.target.value)}
                 className="w-1/2 p-2 border border-gray-300 rounded"
               />
             </div>
@@ -174,10 +210,13 @@ const Filters: React.FC<FiltersProps> = ({
                   <input
                     type="number"
                     placeholder="Min"
-                    defaultValue={0}
+                    value={
+                      (characteristicFilters[characteristic.name] as any)?.min ??
+                      ""
+                    }
                     onChange={(e) =>
                       handleCharacteristicChange(characteristic, {
-                        ...characteristicFilters[characteristic.name],
+                        ...(characteristicFilters[characteristic.name] || {}),
                         min: Number(e.target.value),
                       })
                     }
@@ -186,10 +225,13 @@ const Filters: React.FC<FiltersProps> = ({
                   <input
                     type="number"
                     placeholder="Max"
-                    defaultValue={100}
+                    value={
+                      (characteristicFilters[characteristic.name] as any)?.max ??
+                      ""
+                    }
                     onChange={(e) =>
                       handleCharacteristicChange(characteristic, {
-                        ...characteristicFilters[characteristic.name],
+                        ...(characteristicFilters[characteristic.name] || {}),
                         max: Number(e.target.value),
                       })
                     }
@@ -202,7 +244,9 @@ const Filters: React.FC<FiltersProps> = ({
                     <input
                       type="radio"
                       name={characteristic.name}
-                      value="true"
+                      checked={
+                        characteristicFilters[characteristic.name] === true
+                      }
                       onChange={() =>
                         handleCharacteristicChange(characteristic, true)
                       }
@@ -213,7 +257,9 @@ const Filters: React.FC<FiltersProps> = ({
                     <input
                       type="radio"
                       name={characteristic.name}
-                      value="false"
+                      checked={
+                        characteristicFilters[characteristic.name] === false
+                      }
                       onChange={() =>
                         handleCharacteristicChange(characteristic, false)
                       }
@@ -222,27 +268,34 @@ const Filters: React.FC<FiltersProps> = ({
                   </label>
                 </div>
               ) : characteristic.data_type === "string" ? (
-                <select
-                  multiple
-                  onChange={(e) => {
-                    const values = Array.from(
-                      e.target.selectedOptions,
-                      (option) => option.value
-                    );
-                    handleCharacteristicChange(characteristic, values.join(","));
-                  }}
-                  className="w-full p-2 border border-gray-300 rounded"
-                >
-                  <option value="">Select</option>
-                  {/* Mocked values; replace with dynamic */}
-                  <option value="Value1">Value1</option>
-                  <option value="Value2">Value2</option>
-                </select>
+                <div className="flex flex-col">
+                  {[...new Set(
+                    categories
+                      .flatMap((cat) => cat.products)
+                      .flatMap((prod) => prod.characteristics)
+                      .filter((char) => char.name === characteristic.name)
+                      .map((char) => char.value)
+                  )].map((value) => (
+                    <label key={value} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={
+                          (characteristicFilters[characteristic.name] || "")
+                            .split(",")
+                            .includes(value)
+                        }
+                        onChange={() =>
+                          handleCheckboxChange(characteristic, value)
+                        }
+                      />
+                      {value}
+                    </label>
+                  ))}
+                </div>
               ) : null}
             </div>
           ))}
 
-          {/* Clear Filters */}
           <button
             onClick={() => {
               setSelectedCategory(null);

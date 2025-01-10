@@ -12,7 +12,7 @@ const ProductListPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [maxProductPrice, setMaxProductPrice] = useState<number>(5000);
+  const [maxProductPrice, setMaxProductPrice] = useState<number | null>(null);
 
   useEffect(() => {
     // Fetch categories
@@ -37,6 +37,7 @@ const ProductListPage: React.FC = () => {
           setFilteredProducts(data.results);
           const maxPrice = Math.max(
             ...data.results.map((p: Product) => p.price),
+            0 // Fallback if no products
           );
           setMaxProductPrice(maxPrice);
         } else {
@@ -55,7 +56,7 @@ const ProductListPage: React.FC = () => {
     // Filter by category if categorySlug is present
     if (categorySlug) {
       const categoryFilteredProducts = products.filter(
-        (product) => product.category.slug === categorySlug,
+        (product) => product.category.slug === categorySlug
       );
       setFilteredProducts(categoryFilteredProducts);
     } else {
@@ -68,7 +69,10 @@ const ProductListPage: React.FC = () => {
       category: string | null;
       minPrice: number | null;
       maxPrice: number | null;
-      characteristics?: Record<string, string | number | boolean | { min?: number; max?: number }>;
+      characteristics?: Record<
+        string,
+        string | number | boolean | { min?: number; max?: number }
+      >;
     }) => {
       console.log("Filters received:", filters);
 
@@ -132,7 +136,17 @@ const ProductListPage: React.FC = () => {
               return numericValue >= min && numericValue <= max;
             }
 
-            // Handle exact match filter for strings
+            // Handle string filters with multiple values
+            if (typeof filterValue === "string" && filterValue.includes(",")) {
+              const selectedValues = filterValue.split(",");
+              console.log(
+                `Checking if "${characteristic.value}" is in selected values: `,
+                selectedValues
+              );
+              return selectedValues.includes(characteristic.value);
+            }
+
+            // Handle exact match filter for a single string
             return characteristic.value === String(filterValue);
           });
           console.log(`Filtered by characteristic (${key}):`, updatedProducts);
@@ -145,17 +159,17 @@ const ProductListPage: React.FC = () => {
     [products]
   );
 
-
-
   return (
     <div className="bg-gray-100 min-h-screen p-4">
       <div className="relative max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Filters Section */}
-        <Filters
-          categories={categories}
-          onFilterChange={handleFilterChange}
-          maxProductPrice={maxProductPrice}
-        />
+        {maxProductPrice !== null && (
+          <Filters
+            categories={categories}
+            onFilterChange={handleFilterChange}
+            maxProductPrice={maxProductPrice}
+          />
+        )}
 
         {/* Products Section */}
         <div className="mt-40 grid grid-cols-4 col-span-4 gap-6">
