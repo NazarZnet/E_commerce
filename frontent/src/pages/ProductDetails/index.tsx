@@ -4,11 +4,15 @@ import { Product } from "../../interfaces/product";
 import ProductGallery from "../../Components/ProductGallery";
 import { getProductDetails, getSimilarProducts } from "../../utils/api";
 import ProductList from "../../Components/ProductList";
+import { useDispatch } from "react-redux";
+import { addItem } from "../../redux/slices/basketSlice";
 
 const ProductDetailsPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+
+  const dispatch = useDispatch();
   useEffect(() => {
     // Fetch product details by slug
     const fetchProducts = async () => {
@@ -88,6 +92,10 @@ const ProductDetailsPage: React.FC = () => {
     return null;
   };
 
+  const handleAddToBasket = () => {
+    dispatch(addItem({ product }));
+  }
+
   return (
     <div className="bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 shadow-lg w-full px-4 py-24">
       <div className="mt-12 max-w-7xl mx-auto grid gap-8 lg:grid-cols-2">
@@ -165,8 +173,8 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Actions */}
           <div className="flex gap-4">
-            <button className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition">
-              Add to Cart
+            <button onClick={handleAddToBasket} className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition">
+              Add to Basket
             </button>
             <button className="bg-gray-800 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition">
               Buy Now
