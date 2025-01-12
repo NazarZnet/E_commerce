@@ -1,92 +1,134 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Category, CategoryCharacteristic } from "../interfaces/category";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import { setFilters } from "../redux/slices/filterSlice";
 
 interface FiltersProps {
   categories: Category[];
   maxProductPrice: number;
-  onFilterChange: (filters: {
-    category: string | null;
-    minPrice: number | null;
-    maxPrice: number | null;
-    characteristics?: Record<string, string | number | boolean | { min?: number; max?: number }>;
-  }) => void;
 }
 
-const Filters: React.FC<FiltersProps> = ({
-  categories,
-  maxProductPrice,
-  onFilterChange,
-}) => {
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [minPrice, setMinPrice] = useState<string>("0");
-  const [maxPrice, setMaxPrice] = useState<string>(maxProductPrice.toString());
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    0,
-    maxProductPrice,
-  ]);
-  console.log("Price range:", maxProductPrice, priceRange);
+const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
+  const dispatch = useDispatch();
+  const savedFilters = useSelector((state: RootState) => state.filters);
 
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    savedFilters.category || null
+  );
+  const [minPrice, setMinPrice] = useState<string>(
+    savedFilters.minPrice?.toString() || "0"
+  );
+  const [maxPrice, setMaxPrice] = useState<string>(
+    savedFilters.maxPrice?.toString() || maxProductPrice.toString()
+  );
   const [characteristicFilters, setCharacteristicFilters] = useState<
     Record<string, string | number | boolean | { min?: number; max?: number }>
-  >({});
+  >(savedFilters.characteristics || {});
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    Number(minPrice),
+    Number(maxPrice),
+  ]);
+
   const currentCategory = categories.find(
     (category) => category.name === selectedCategory
   );
 
+  const previousCategoryRef = useRef<string | null>(selectedCategory);
+
+  // Reset characteristic filters when the selected category changes (user-triggered)
+  useEffect(() => {
+    if (selectedCategory !== previousCategoryRef.current) {
+      setCharacteristicFilters({}); // Reset only on user-triggered category change
+    }
+    previousCategoryRef.current = selectedCategory; // Update the previous category
+  }, [selectedCategory]);
+
   // Initialize characteristic filters based on the selected category
+  // Reset characteristic filters and ensure they only include relevant characteristics
   useEffect(() => {
     if (currentCategory?.characteristics) {
-      const initialCharacteristicFilters: Record<
+      const relevantCharacteristics = new Set(
+        currentCategory.characteristics.map((char) => char.name)
+      );
+
+      // Filter out irrelevant characteristics
+      const filteredCharacteristicFilters = Object.keys(characteristicFilters)
+        .filter((key) => relevantCharacteristics.has(key))
+        .reduce((acc, key) => {
+          acc[key] = characteristicFilters[key];
+          return acc;
+        }, {} as typeof characteristicFilters);
+
+      // Initialize new filters for any missing characteristics
+      const newCharacteristicFilters: Record<
         string,
         string | number | boolean | { min?: number; max?: number }
-      > = {};
+      > = { ...filteredCharacteristicFilters };
 
       currentCategory.characteristics.forEach((characteristic) => {
-        if (characteristic.data_type === "integer") {
-          const maxCharacteristicValue = categories
-            .flatMap((category) => category.products)
-            .flatMap((product) => product.characteristics)
-            .filter((char) => char.name === characteristic.name)
-            .reduce((max, char) => {
-              const numericValue = Number(char.value);
-              return isNaN(numericValue) ? max : Math.max(max, numericValue);
-            }, 0);
+        if (!(characteristic.name in newCharacteristicFilters)) {
+          if (characteristic.data_type === "integer") {
+            const maxCharacteristicValue = categories
+              .flatMap((category) => category.products)
+              .flatMap((product) => product.characteristics)
+              .filter((char) => char.name === characteristic.name)
+              .reduce((max, char) => {
+                const numericValue = Number(char.value);
+                return isNaN(numericValue) ? max : Math.max(max, numericValue);
+              }, 0);
 
-          initialCharacteristicFilters[characteristic.name] = {
-            min: 0,
-            max: maxCharacteristicValue || 100,
-          };
-        } else if (characteristic.data_type === "boolean") {
-          initialCharacteristicFilters[characteristic.name] = false;
-        } else if (characteristic.data_type === "string") {
-          const allValues = [
-            ...new Set(
-              categories
-                .flatMap((cat) => cat.products)
-                .flatMap((prod) => prod.characteristics)
-                .filter((char) => char.name === characteristic.name)
-                .map((char) => char.value)
-            ),
-          ];
-          initialCharacteristicFilters[characteristic.name] = allValues.join(
-            ","
-          ); // All values checked by default
+            newCharacteristicFilters[characteristic.name] = {
+              min: 0,
+              max: maxCharacteristicValue || 100,
+            };
+          } else if (characteristic.data_type === "boolean") {
+            newCharacteristicFilters[characteristic.name] = false;
+          } else if (characteristic.data_type === "string") {
+            const allValues = [
+              ...new Set(
+                categories
+                  .flatMap((cat) => cat.products)
+                  .flatMap((prod) => prod.characteristics)
+                  .filter((char) => char.name === characteristic.name)
+                  .map((char) => char.value)
+              ),
+            ];
+            newCharacteristicFilters[characteristic.name] = allValues.join(",");
+          }
         }
       });
 
-      setCharacteristicFilters(initialCharacteristicFilters);
+      // Only update state if filters have changed
+      if (
+        JSON.stringify(newCharacteristicFilters) !==
+        JSON.stringify(characteristicFilters)
+      ) {
+        setCharacteristicFilters(newCharacteristicFilters);
+      }
     }
-  }, [currentCategory, categories]);
-
+  }, [currentCategory, categories, characteristicFilters]);
+  // Update filters in Redux
   useEffect(() => {
-    onFilterChange({
+    const filters = {
       category: selectedCategory,
       minPrice: minPrice ? Number(minPrice) : null,
       maxPrice: maxPrice ? Number(maxPrice) : null,
       characteristics: characteristicFilters,
-    });
-  }, [selectedCategory, minPrice, maxPrice, characteristicFilters, onFilterChange]);
+    };
+
+    if (JSON.stringify(filters) !== JSON.stringify(savedFilters)) {
+      dispatch(setFilters(filters));
+    }
+  }, [
+    selectedCategory,
+    minPrice,
+    maxPrice,
+    characteristicFilters,
+    dispatch,
+    savedFilters,
+  ]);
 
   const handleSliderChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -303,12 +345,6 @@ const Filters: React.FC<FiltersProps> = ({
               setMaxPrice(maxProductPrice.toString());
               setPriceRange([0, maxProductPrice]);
               setCharacteristicFilters({});
-              onFilterChange({
-                category: null,
-                minPrice: null,
-                maxPrice: null,
-                characteristics: {},
-              });
             }}
             className="bg-transparent border border-orange-500 text-orange-500 py-2 px-4 rounded-lg hover:bg-orange-500 hover:text-white transition w-full"
           >
