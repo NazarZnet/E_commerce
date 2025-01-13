@@ -1,6 +1,8 @@
 import React from "react";
 import { Product } from "../interfaces/product";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addItem } from "../redux/slices/basketSlice";
 
 interface ProductCardProps {
     product: Product;
@@ -8,6 +10,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const renderDiscountBadge = () => {
         if (product.discount_percentage && product.discount_percentage > 0) {
@@ -69,6 +72,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         navigate(`/products/${slug}`);
     }
 
+    const handleAddToBasket = () => {
+        dispatch(addItem({ product }));
+    }
+
     return (
         <div className="relative w-[300px] h-[470px] bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition">
             {/* Discount Badge */}
@@ -100,8 +107,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     )}
                 </div>
                 <div className="flex gap-1 mt-3">
-                    <button className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition w-full">
-                        Add to Cart
+                    <button onClick={handleAddToBasket} className="bg-orange-500 text-white p-2 rounded-lg hover:bg-orange-600 transition w-full">
+                        Add to Basket
                     </button>
                     <button className="group bg-transparent border border-orange-500 text-orange-500 py-2 px-4 rounded-lg hover:bg-orange-500 hover:text-white transition w-full"
                         onClick={() => goToDetails(product.slug)}
