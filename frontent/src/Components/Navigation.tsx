@@ -3,12 +3,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
 import { removeItem, updateQuantity, clearBasket } from "../redux/slices/basketSlice";
 import logo from "../assets/images/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navigation: React.FC = () => {
   const [isBasketOpen, setIsBasketOpen] = useState(false);
   const basket = useSelector((state: RootState) => state.basket);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleRemove = (productId: number) => {
     dispatch(removeItem(productId));
@@ -23,9 +24,8 @@ const Navigation: React.FC = () => {
   };
 
   const handleBuyNow = () => {
-    alert("Thank you for your purchase!");
-    dispatch(clearBasket());
     setIsBasketOpen(false);
+    navigate("/order");
   };
 
   return (

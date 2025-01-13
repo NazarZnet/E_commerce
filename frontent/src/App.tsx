@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./Components/Layout";
+import OrderPage from "./pages/Order";
 
 const MainPage = lazy(() => import("./pages/Main"));
 const ShopPage = lazy(() => import("./pages/Shop"));
@@ -18,6 +19,7 @@ function App() {
               path="products/:categorySlug"
               element={<ShopPage />}
             />
+            <Route path="order" element={<OrderPage />} />
           </Route>
         </Routes>
       </Suspense>

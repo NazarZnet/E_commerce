@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # custom apps
     "users",
     "products",
+    "orders",
     # libs,
     "rest_framework",
     "django_filters",

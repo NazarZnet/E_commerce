@@ -1,0 +1,15 @@
+.custom-selector {
+    height: 100%;
+    background-color: white;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.custom-selector input {
+    padding-left: 4px;
+}
+
+.custom-selector input:focus {
+    border: none;
+    outline: none
+}
