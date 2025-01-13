@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Product } from "../../interfaces/product";
 import ProductGallery from "../../Components/ProductGallery";
 import { getProductDetails, getSimilarProducts } from "../../utils/api";
 import ProductList from "../../Components/ProductList";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../../redux/slices/basketSlice";
+import { RootState } from "../../redux/store";
 
 const ProductDetailsPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
 
+
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const productExists = useSelector((state: RootState) =>
+    state.basket.items.some((item) => item.product.id === product?.id)
+  );
   useEffect(() => {
     // Fetch product details by slug
     const fetchProducts = async () => {
@@ -96,6 +104,14 @@ const ProductDetailsPage: React.FC = () => {
     dispatch(addItem({ product }));
   }
 
+
+  const handleBuyNow = () => {
+    if (!productExists) {
+      dispatch(addItem({ product }));
+    }
+    navigate("/order");
+    window.scrollTo(0, 0);
+  };
   return (
     <div className="bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 shadow-lg w-full px-4 py-24">
       <div className="mt-12 max-w-7xl mx-auto grid gap-8 lg:grid-cols-2">
@@ -176,7 +192,7 @@ const ProductDetailsPage: React.FC = () => {
             <button onClick={handleAddToBasket} className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition">
               Add to Basket
             </button>
-            <button className="bg-gray-800 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition">
+            <button onClick={handleBuyNow} className="bg-gray-800 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition">
               Buy Now
             </button>
           </div>

@@ -70,6 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
     const goToDetails = (slug: string) => {
         navigate(`/products/${slug}`);
+        window.scrollTo(0, 0);
     }
 
     const handleAddToBasket = () => {

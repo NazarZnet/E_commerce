@@ -26,6 +26,7 @@ const Navigation: React.FC = () => {
   const handleBuyNow = () => {
     setIsBasketOpen(false);
     navigate("/order");
+    window.scrollTo(0, 0);
   };
 
   return (

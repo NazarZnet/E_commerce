@@ -1,5 +1,8 @@
 import React from 'react';
 import { Category } from '../interfaces/category';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { setFilters } from '../redux/slices/filterSlice';
 
 
 interface CategoryCarouselProps {
@@ -7,6 +10,8 @@ interface CategoryCarouselProps {
 }
 
 const CategoryList: React.FC<CategoryCarouselProps> = ({ categories }) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const sanitizeSVG = (svgContent: string): string => {
         const parser = new DOMParser();
@@ -17,6 +22,21 @@ const CategoryList: React.FC<CategoryCarouselProps> = ({ categories }) => {
             svg.removeAttribute('height');
         }
         return svg?.outerHTML || svgContent;
+    };
+    const handleOpenCategory = (categoryName: string) => {
+        // Set category in Redux filters
+        dispatch(
+            setFilters({
+                category: categoryName,
+                minPrice: null,
+                maxPrice: null,
+                characteristics: {}, // Reset other filters
+            })
+        );
+
+        // Navigate to the shop page
+        navigate('/products');
+        window.scrollTo(0, 0);
     };
 
 
@@ -35,6 +55,8 @@ const CategoryList: React.FC<CategoryCarouselProps> = ({ categories }) => {
                     <div
                         key={category.id}
                         className=" w-72 flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-lg hover:-translate-y-3 hover:scale-105 transition-all duration-300 "
+                        onClick={() => handleOpenCategory(category.name)}
+
                     >
 
                         <div
