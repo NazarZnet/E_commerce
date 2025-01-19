@@ -1,3 +1,4 @@
+from datetime import timedelta
 import certifi, os
 
 os.environ["SSL_CERT_FILE"] = certifi.where()
@@ -38,15 +39,16 @@ INSTALLED_APPS = [
     "orders",
     # libs,
     "rest_framework",
+    "rest_framework_simplejwt",
     "django_filters",
     "corsheaders",
     "import_export",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -108,7 +110,19 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
     "COERCE_DECIMAL_TO_STRING": False,
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
 }
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+USE_HTTPS = False
+
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
@@ -116,10 +130,18 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = "nazarznetynyak123@gmail.com"
 EMAIL_HOST_PASSWORD = "zqpj ixwq kixn sfka"
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173", "http://localhost:5173"]
-CORS_ALLOW_ALL_ORIGINS = True
-ALLOWED_HOSTS = ["*"]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]
+CSRF_COOKIE_SECURE = False  # True in production
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False  # True in production
+SESSION_COOKIE_HTTPONLY = True
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 

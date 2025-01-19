@@ -113,7 +113,7 @@ const ProductDetailsPage: React.FC = () => {
     window.scrollTo(0, 0);
   };
   return (
-    <div className="bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 shadow-lg w-full px-4 py-24">
+    <div className="  px-4 py-24">
       <div className="mt-12 max-w-7xl mx-auto grid gap-8 lg:grid-cols-2">
         {/* Left Section: Product Gallery */}
         <ProductGallery images={product.gallery} />

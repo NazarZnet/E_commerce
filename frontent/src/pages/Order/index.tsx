@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/store";
 import { removeItem, updateQuantity, clearBasket } from "../../redux/slices/basketSlice";
@@ -7,11 +7,11 @@ import countryList from 'react-select-country-list'
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 import "./style.css"
+import { fetchProfile } from "../../utils/api";
 const OrderPage: React.FC = () => {
     const dispatch = useDispatch();
     const basket = useSelector((state: RootState) => state.basket);
     const countryOptions = useMemo(() => countryList().getData(), [])
-
 
 
     const [form, setForm] = useState({
@@ -29,6 +29,21 @@ const OrderPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            try {
+                const data = await fetchProfile(); // Fetch profile data
+                const user = data.user;
+                setForm((prev) => ({ ...prev, ["email"]: user.email, ["first_name"]: user.first_name, ["last_name"]: user.last_name }));
+            } catch (err: any) {
+                console.error(err);
+            };
+        }
+
+        loadProfile();
+    }, []);
+
 
     const totalPrice = basket.items.reduce(
         (total, item) => total + item.product.discounted_price * item.quantity,
@@ -91,7 +106,7 @@ const OrderPage: React.FC = () => {
     };
 
     return (
-        <div className="bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 shadow-lg w-full px-4 py-24">
+        <div className="  px-4 py-24">
             <div className="max-w-4xl m-auto">
 
 
