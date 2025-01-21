@@ -70,7 +70,6 @@ class VerifyTempPasswordView(APIView):
 
 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class ProfileView(APIView):
@@ -104,6 +103,16 @@ class UserUpdateView(APIView):
             user, data=request.data, partial=True
         )  # Allow partial updates
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+
+            return Response(
+                {
+                    "message": "Updated user's data successfully.",
+                    "user": UserSerializer(user).data,
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh),
+                },
+                status=status.HTTP_200_OK,
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

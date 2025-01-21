@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { clearTokens, fetchProfile, updateUserInfo } from "../../utils/api";
+import { clearTokens, fetchProfile, refreshAccessToken, updateUserInfo } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import { User } from "../../interfaces/user";
 import { Order } from "../../interfaces/order";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { clearAuthData, setAuthData, updateTokens } from "../../redux/slices/authSlice";
 
 const ProfilePage: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
@@ -12,25 +15,65 @@ const ProfilePage: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedUser, setEditedUser] = useState<User | null>(null);
     const navigate = useNavigate();
+    const accessToken = useSelector((state: RootState) => state.auth.access_token);
+    const refreshToken = useSelector((state: RootState) => state.auth.refresh_token);
+
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const loadProfile = async () => {
+            setLoading(true);
+
             try {
-                const data = await fetchProfile(); // Fetch profile data
+                // Check if tokens are available
+                if (!accessToken && !refreshToken) {
+                    navigate("/login");
+                    return;
+                }
+
+                // Attempt to fetch the profile
+                const data = await fetchProfile(accessToken);
                 setUser(data.user);
                 setEditedUser(data.user); // Set editable copy of user data
                 setOrders(data.orders);
             } catch (err: any) {
+                if (err.response?.status === 401 && refreshToken) {
+                    console.log("Access token expired. Attempting to refresh...");
+                    try {
+                        // Attempt to refresh tokens
+                        const refreshData = await refreshAccessToken(refreshToken);
+                        console.log("Refreshed tokens: ", refreshData);
 
-                navigate("/login");
+                        // Update tokens in Redux
+                        dispatch(
+                            updateTokens({
+                                access_token: refreshData.access_token,
+                                refresh_token: refreshData.refresh_token,
+                            })
+                        );
 
+                        // Retry fetching the profile with the new token
+                        const retryData = await fetchProfile(refreshData.access_token);
+                        setUser(retryData.user);
+                        setEditedUser(retryData.user);
+                        setOrders(retryData.orders);
+                    } catch (refreshError) {
+                        console.error("Failed to refresh tokens:", refreshError);
+                        // Redirect to login if refresh also fails
+                        navigate("/login");
+                    }
+                } else {
+                    console.error("Error fetching profile:", err);
+                    navigate("/login");
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         loadProfile();
-    }, [navigate]);
+    }, [accessToken, refreshToken, navigate, dispatch]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -44,22 +87,69 @@ const ProfilePage: React.FC = () => {
         setLoading(true);
 
         try {
-            const updatedUser = await updateUserInfo({
+            const data = await updateUserInfo({
                 first_name: editedUser.first_name,
                 last_name: editedUser.last_name,
                 email: editedUser.email,
-            });
+            }, accessToken);
 
-            setUser(updatedUser); // Update the local state with the new user info
-            setIsEditing(false); // Reset editing state
+            setUser(data.user);
+            setIsEditing(false);
+            dispatch(
+                setAuthData({
+                    access_token: data.access,
+                    refresh_token: data.refresh,
+                    user: data.user,
+                })
+            );
         } catch (err: any) {
-            setError(err.message);
+            if (err.response?.status === 401 && refreshToken) {
+                console.log("Access token expired. Attempting to refresh...");
+                try {
+                    // Attempt to refresh tokens
+                    const refreshData = await refreshAccessToken(refreshToken);
+                    console.log("Refreshed tokens: ", refreshData);
+
+                    // Update tokens in Redux
+                    dispatch(
+                        updateTokens({
+                            access_token: refreshData.access_token,
+                            refresh_token: refreshData.refresh_token,
+                        })
+                    );
+
+                    const data = await updateUserInfo({
+                        first_name: editedUser.first_name,
+                        last_name: editedUser.last_name,
+                        email: editedUser.email,
+                    }, accessToken);
+
+                    setUser(data.user);
+                    setIsEditing(false);
+                    dispatch(
+                        setAuthData({
+                            access_token: data.access,
+                            refresh_token: data.refresh,
+                            user: data.user,
+                        })
+                    );
+                } catch (refreshError) {
+                    console.error("Failed to refresh tokens:", refreshError);
+                    // Redirect to login if refresh also fails
+                    navigate("/login");
+                }
+            } else {
+                console.error("Error updating user's data:", err);
+                setError(err.message)
+            }
         } finally {
             setLoading(false);
         }
     };
     const handleLogOut = () => {
-        clearTokens();
+        dispatch(
+            clearAuthData()
+        );
         navigate("/login");
     };
     if (loading) {

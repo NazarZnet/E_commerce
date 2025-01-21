@@ -5,7 +5,7 @@ from .models import (
     Product,
     ProductGallery,
     ProductCharacteristic,
-    ProductRating,
+    ProductComment,
     CharacteristicType,
 )
 from unfold.admin import ModelAdmin, TabularInline
@@ -26,12 +26,14 @@ class CustomSliderNumericFilter(SliderNumericFilter):
     STEP = 10
 
 
-class ProductRatingInline(TabularInline):
-    model = ProductRating
+class ProductCommentInline(TabularInline):
+    model = ProductComment
     extra = 1
-    fields = ("user", "stars", "created_at")
-    readonly_fields = ("created_at",)
+    fields = ("user", "rating", "comment", "created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at")
     ordering = ("-created_at",)
+    verbose_name = "Product Comment"
+    verbose_name_plural = "Product Comments"
 
 
 class ProductGalleryInline(TabularInline):
@@ -42,6 +44,7 @@ class ProductGalleryInline(TabularInline):
     model = ProductGallery
     extra = 1
     fields = ("image", "caption")  # Fields to display in the inline form
+
 
 class ProductCharacteristicInline(TabularInline):
     model = ProductCharacteristic
@@ -105,7 +108,7 @@ class ProductAdmin(ModelAdmin, ImportExportModelAdmin):
     inlines = [
         ProductGalleryInline,
         ProductCharacteristicInline,
-        ProductRatingInline,
+        ProductCommentInline,
     ]
     readonly_fields = (
         "discounted_price",
@@ -120,20 +123,39 @@ class ProductAdmin(ModelAdmin, ImportExportModelAdmin):
     discounted_price.short_description = "Discounted Price"
 
 
-@admin.register(ProductRating)
-class ProductRatingAdmin(ModelAdmin):
-    list_display = ("product", "user", "stars_display", "created_at")
-    list_filter = ("stars", "created_at")
-    search_fields = ("product__name", "user__email")
+@admin.register(ProductComment)
+class ProductCommentAdmin(ModelAdmin):
+    list_display = (
+        "product",
+        "user",
+        "stars_display",
+        "comment_preview",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = ("rating", "created_at")
+    search_fields = ("product__name", "user__email", "comment")
     ordering = ("-created_at",)
 
     def stars_display(self, obj):
         """
         Render stars as icons in the admin panel.
         """
-        return format_html("★" * obj.stars + "☆" * (5 - obj.stars))
+        if obj.rating:
+            return format_html("★" * obj.rating + "☆" * (5 - obj.rating))
+        return "No Rating"
 
     stars_display.short_description = "Stars"
+
+    def comment_preview(self, obj):
+        """
+        Show a preview of the comment in the admin panel.
+        """
+        if obj.comment:
+            return obj.comment[:50] + ("..." if len(obj.comment) > 50 else "")
+        return "No Comment"
+
+    comment_preview.short_description = "Comment Preview"
 
 
 @admin.register(ProductGallery)
@@ -151,12 +173,15 @@ class ProductCharacteristicAdmin(ModelAdmin):
     Admin configuration for the ProductCharacteristic model.
     """
 
-    list_display = ("product", "characteristic_type", "value")  # Fields to display in the list view
+    list_display = (
+        "product",
+        "characteristic_type",
+        "value",
+    )  # Fields to display in the list view
     search_fields = (
         "product__name",
         "characteristic_type__name",
     )  # Search by product name and characteristic name
-
 
 
 @admin.register(CharacteristicType)

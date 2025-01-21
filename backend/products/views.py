@@ -2,11 +2,11 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Product, Category, ProductRating
+from .models import Product, Category, ProductComment
 from .serializers import (
     ProductSerializer,
     CategorySerializer,
-    ProductRatingSerializer,
+    ProductCommentSerializer,
 )
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -30,14 +30,18 @@ class CategoryViewSet(ModelViewSet):
         return context
 
 
-class ProductRatingViewSet(ModelViewSet):
-    queryset = ProductRating.objects.all()
-    serializer_class = ProductRatingSerializer
+from rest_framework.permissions import IsAuthenticated
+
+
+class ProductCommentViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
+
+    queryset = ProductComment.objects.all()
+    serializer_class = ProductCommentSerializer
 
     def perform_create(self, serializer):
         # Automatically set the user and product when a rating is created
-        # serializer.save(user=self.request.user)
-        serializer.save()
+        serializer.save(user=self.request.user)
 
 
 class ProductViewSet(ModelViewSet):
@@ -47,7 +51,7 @@ class ProductViewSet(ModelViewSet):
 
     queryset = Product.objects.all()
     pagination_class = CustomPagination
-    serializer_class=ProductSerializer
+    serializer_class = ProductSerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_field = "slug"  # Use slug for product URLs
 
@@ -57,7 +61,6 @@ class ProductViewSet(ModelViewSet):
     search_fields = ["name", "description"]  # Search by name or description
     ordering_fields = ["price", "created_at", "updated_at"]
     ordering = ["-created_at"]  # Default ordering
-
 
     def get_queryset(self):
         """

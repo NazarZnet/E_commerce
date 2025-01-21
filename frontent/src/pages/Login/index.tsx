@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { generateTempPassword, verifyTempPassword } from "../../utils/api";
+import { useDispatch } from "react-redux";
+import { setAuthData } from "../../redux/slices/authSlice";
 const LoginPage: React.FC = () => {
     const [step, setStep] = useState<"email" | "verify">("email");
     const [form, setForm] = useState({ email: "", temp_password: "" });
@@ -8,7 +10,7 @@ const LoginPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [timer, setTimer] = useState(600); // 10 minutes in seconds
     const navigate = useNavigate();
-
+    const dispatch = useDispatch();
     useEffect(() => {
         let interval: NodeJS.Timeout;
 
@@ -66,8 +68,15 @@ const LoginPage: React.FC = () => {
         }
 
         try {
-            const user = await verifyTempPassword(form.email, form.temp_password); // Use API call function
-            console.log("User data:", user);
+            const data = await verifyTempPassword(form.email, form.temp_password);
+            console.log("Login response: ", data);
+            dispatch(
+                setAuthData({
+                    access_token: data.access,
+                    refresh_token: data.refresh,
+                    user: data.user,
+                })
+            );
             navigate("/profile");
         } catch (err: any) {
             setError(err.message || "An error occurred.");

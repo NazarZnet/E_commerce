@@ -1,10 +1,12 @@
 from rest_framework import serializers
+
+from users.serializers import UserSerializer
 from .models import (
     Product,
+    ProductComment,
     ProductGallery,
     Category,
     ProductCharacteristic,
-    ProductRating,
     CharacteristicType,
 )
 
@@ -15,11 +17,21 @@ class CharacteristicTypeSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "data_type", "suffix"]
 
 
-class ProductRatingSerializer(serializers.ModelSerializer):
+class ProductCommentSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)  # Use UserSerializer for the user field
+
     class Meta:
-        model = ProductRating
-        fields = ["id", "product", "user", "stars", "created_at"]
-        read_only_fields = ["id", "created_at"]
+        model = ProductComment
+        fields = [
+            "id",
+            "product",
+            "user",
+            "rating",
+            "comment",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
 
 
 class ProductGallerySerializer(serializers.ModelSerializer):
@@ -43,6 +55,7 @@ class ProductSerializer(serializers.ModelSerializer):
     category = serializers.SerializerMethodField()
     discounted_price = serializers.SerializerMethodField()
     characteristics = ProductCharacteristicSerializer(many=True, read_only=True)
+    comments = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -60,6 +73,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "is_featured",
             "gallery",
             "characteristics",
+            "comments",  # Added field for comments
             "created_at",
             "updated_at",
         ]
@@ -75,6 +89,13 @@ class ProductSerializer(serializers.ModelSerializer):
         Return the discounted price using the model's method.
         """
         return obj.discounted_price()
+
+    def get_comments(self, obj):
+        """
+        Retrieve and order the comments by -created_at.
+        """
+        ordered_comments = obj.product_comments.order_by("-created_at")
+        return ProductCommentSerializer(ordered_comments, many=True).data
 
 
 class CategorySerializer(serializers.ModelSerializer):

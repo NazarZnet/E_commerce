@@ -7,6 +7,7 @@ import ProductList from "../../Components/ProductList";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../../redux/slices/basketSlice";
 import { RootState } from "../../redux/store";
+import CommentsList from "../../Components/CommentsList";
 
 const ProductDetailsPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -198,7 +199,10 @@ const ProductDetailsPage: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="mt-16">
+      <div>
+        <CommentsList product_comments={product.comments} productId={product.id} />
+      </div>
+      <div className="mt-16 max-w-7xl mx-auto">
         {
           <ProductList
             products={similarProducts}

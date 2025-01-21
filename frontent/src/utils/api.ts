@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Category } from "../interfaces/category";
-import { Product } from "../interfaces/product";
+import { Product, ProductComment } from "../interfaces/product";
 import { UpdateUserInfoPayload, User } from "../interfaces/user";
 
 const API_BASE_URL = '/api';
@@ -166,51 +166,33 @@ export const verifyTempPassword = async (email: string, tempPassword: string): P
             email,
             temp_password: tempPassword,
         });
-
-        const { access, refresh } = response.data;
-
-        // Save tokens to localStorage
-        saveTokens(access, refresh);
-
-        return response.data.user; // Return user data
+        return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || "Verification failed.");
     }
 };
 
 // Refresh access token
-export const refreshAccessToken = async (): Promise<string> => {
+export const refreshAccessToken = async (refreshToken: string | null): Promise<any> => {
     try {
-        const refreshToken = localStorage.getItem("refresh_token");
-        if (!refreshToken) {
-            throw new Error("No refresh token found.");
-        }
+
 
         const response = await axios.post(`${API_BASE_URL}/token/refresh/`, {
             refresh: refreshToken,
         });
 
-        const { access } = response.data;
-
-        // Save new access token to localStorage
-        localStorage.setItem("access_token", access);
-
-        return access;
+        return response.data;
     } catch (error: any) {
-        clearTokens();
-        throw new Error(error.response?.data?.message || "Failed to refresh access token.");
+        throw {
+            response: error.response,
+            mesage: error.response?.data?.message || "Failed to refresh access token."
+        };
     }
 };
 
 // Fetch profile data
-export const fetchProfile = async (): Promise<any> => {
+export const fetchProfile = async (accessToken: string | null): Promise<any> => {
     try {
-        let accessToken = localStorage.getItem("access_token");
-
-        if (!accessToken) {
-            // If no access token, try to refresh it
-            accessToken = await refreshAccessToken();
-        }
 
         const response = await axios.get(`${API_BASE_URL}/profile/`, {
             headers: {
@@ -218,12 +200,34 @@ export const fetchProfile = async (): Promise<any> => {
             },
         });
 
-        return response.data; // Return profile data
+        return response.data;
     } catch (error: any) {
         if (error.response?.status === 401) {
-            // If refresh token expired or invalid
-            clearTokens();
-            throw { response: { status: 401 }, message: "Unauthorized" };
+            throw { response: error.response, message: "Unauthorized" };
+        }
+
+        throw {
+            response: error.response || null,
+            message: error.response?.data?.message || "Failed to fetch profile data.",
+        };
+    }
+};
+
+
+// Fetch profile data
+export const deleteComment = async (accessToken: string | null, commentId: number): Promise<number> => {
+    try {
+
+        const response = await axios.delete(`${API_BASE_URL}/comments/${commentId}/`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+
+        return response.status;
+    } catch (error: any) {
+        if (error.response?.status === 401) {
+            throw { response: error.response, message: "Unauthorized" };
         }
 
         throw {
@@ -234,15 +238,11 @@ export const fetchProfile = async (): Promise<any> => {
 };
 
 export const updateUserInfo = async (
-    payload: UpdateUserInfoPayload
-): Promise<User> => {
+    payload: UpdateUserInfoPayload,
+    accessToken: string | null
+): Promise<any> => {
     try {
-        let accessToken = localStorage.getItem("access_token");
 
-        if (!accessToken) {
-            // If no access token, try to refresh it
-            accessToken = await refreshAccessToken();
-        }
         const response = await axios.put(
             `${API_BASE_URL}/users/update/`,
             payload,
@@ -254,11 +254,48 @@ export const updateUserInfo = async (
             }
         );
 
-        return response.data; // Assuming the updated user info is returned in the response
+        return response.data;
     } catch (error: any) {
         if (error.response?.status === 401) {
-            throw new Error("Unauthorized: Please login again.");
+            throw { response: error.response, message: "Unauthorized" };
         }
-        throw new Error(error.response?.data?.message || "Failed to update user info.");
+
+        throw {
+            response: error.response || null,
+            message: error.response?.data?.message || "Failed to update user info.",
+        };
+    }
+};
+
+export interface SaveCommentData {
+    product: number; // Product ID
+    comment?: string; // Optional comment text
+    rating?: number;  // Optional rating (1 to 5 stars)
+}
+
+export const saveComment = async (data: SaveCommentData, accessToken: string | null): Promise<ProductComment> => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/comments/`, data, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response?.status === 401) {
+            // Handle token expiration, refreshing token, or redirecting to login
+            throw {
+                response: error.response,
+                message: "Authentication required. Please log in."
+            };
+        }
+        throw {
+            response: error.response,
+            message: error.response?.data?.detail || "Failed to save the comment."
+        };
+
+
     }
 };

@@ -26,6 +26,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+
 class CharacteristicType(models.Model):
     name = models.CharField(max_length=100)
     data_type = models.CharField(
@@ -42,7 +43,7 @@ class CharacteristicType(models.Model):
         max_length=20,
         blank=True,
         null=True,
-        help_text="Optional suffix to display with the value, e.g., 'km/h', '%'."
+        help_text="Optional suffix to display with the value, e.g., 'km/h', '%'.",
     )
     categories = models.ManyToManyField(
         Category, related_name="characteristics", blank=True
@@ -65,7 +66,7 @@ class Product(models.Model):
     )
     stock = models.PositiveIntegerField(default=0)
     category = models.ForeignKey(
-        Category, related_name="products", on_delete=models.CASCADE
+        "Category", related_name="products", on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -84,38 +85,51 @@ class Product(models.Model):
         return self.price
 
     def average_rating(self):
-        """
-        Calculate and return the average rating of the product.
-        """
-        ratings = self.ratings.all()
-        if ratings.exists():
-            return ratings.aggregate(models.Avg("stars"))["stars__avg"]
+        """Calculate and return the average rating of the product."""
+        ratings = self.product_comments.exclude(rating__isnull=True).values_list(
+            "rating", flat=True
+        )
+        if ratings:
+            return sum(ratings) / len(ratings)
         return None  # No ratings yet
+
+    def total_ratings(self):
+        """Return the total number of ratings."""
+        return self.comments.exclude(rating__isnull=True).count()
+
+    def total_comments(self):
+        """Return the total number of comments."""
+        return self.comments.exclude(comment__isnull=True).count()
 
     def __str__(self):
         return self.name
 
 
-class ProductRating(models.Model):
+class ProductComment(models.Model):
+    """
+    Model for product comments and ratings.
+    """
+
     product = models.ForeignKey(
-        Product, related_name="ratings", on_delete=models.CASCADE
+        Product, related_name="product_comments", on_delete=models.CASCADE
     )
     user = models.ForeignKey(
-        User, related_name="product_ratings", on_delete=models.CASCADE
+        User,
+        related_name="product_comments",
+        on_delete=models.CASCADE,
     )
-    stars = models.PositiveIntegerField(
-        choices=[(i, f'{i} Star{"s" if i > 1 else ""}') for i in range(1, 6)], default=5
-    )
+    comment = models.TextField(blank=True, null=True)  # Optional comment
+    rating = models.PositiveIntegerField(
+        choices=[(i, f"{i} Star{'s' if i > 1 else ''}") for i in range(1, 6)],
+        blank=True,
+        null=True,
+        help_text="Rating from 1 to 5 stars",
+    )  # Optional rating
     created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = (
-            "product",
-            "user",
-        )  # Prevent duplicate ratings by the same user
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.product.name} - {self.stars} Stars by {self.user.email}"
+        return f"{self.product.name} - {self.user.email} - {self.rating or 'No Rating'}"
 
 
 class ProductGallery(models.Model):
@@ -134,7 +148,9 @@ class ProductCharacteristic(models.Model):
         Product, related_name="characteristics", on_delete=models.CASCADE
     )
     characteristic_type = models.ForeignKey(
-        CharacteristicType, related_name="product_characteristics", on_delete=models.CASCADE
+        CharacteristicType,
+        related_name="product_characteristics",
+        on_delete=models.CASCADE,
     )
     value = models.CharField(max_length=255)
 
@@ -148,17 +164,23 @@ class ProductCharacteristic(models.Model):
             try:
                 int(self.value)
             except ValueError:
-                raise ValidationError(f"The value for {self.characteristic_type.name} must be an integer.")
+                raise ValidationError(
+                    f"The value for {self.characteristic_type.name} must be an integer."
+                )
 
         elif data_type == "float":
             try:
                 float(self.value)
             except ValueError:
-                raise ValidationError(f"The value for {self.characteristic_type.name} must be a float.")
+                raise ValidationError(
+                    f"The value for {self.characteristic_type.name} must be a float."
+                )
 
         elif data_type == "boolean":
             if self.value.lower() not in ["true", "false"]:
-                raise ValidationError(f"The value for {self.characteristic_type.name} must be 'true' or 'false'.")
+                raise ValidationError(
+                    f"The value for {self.characteristic_type.name} must be 'true' or 'false'."
+                )
 
     def save(self, *args, **kwargs):
         # Call clean method to validate before saving
