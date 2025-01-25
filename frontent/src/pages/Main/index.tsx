@@ -6,12 +6,14 @@ import CategoryList from "../../Components/CategoryList";
 import ProductList from "../../Components/ProductList";
 import { Product } from "../../interfaces/product";
 import { Category } from "../../interfaces/category";
+import { useNavigate } from "react-router-dom";
 
 export default function Main() {
 
     const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [popular, setPopular] = useState<Product[]>([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function getProducts() {
@@ -36,6 +38,10 @@ export default function Main() {
         getCategoryList();
         getPopular();
     }, []);
+    const handleShowMorePopular = () => {
+        navigate("/products");
+        window.scrollTo(0, 0);
+    }
 
 
     return (
@@ -78,7 +84,7 @@ export default function Main() {
                 </div>
             </header>
             {featuredProducts && featuredProducts.length > 0 && (
-                <FeaturedProducts products={featuredProducts.slice(0, 4)} />
+                <FeaturedProducts products={featuredProducts} />
             )}
 
             {categories && categories.length > 0 && (
@@ -88,7 +94,7 @@ export default function Main() {
             {popular && popular.length > 0 && (
                 <div className="w-full px-6 py-12 bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 shadow-lg">
 
-                    <ProductList products={popular} title="Popular" subtitle="Products" description="Discover our best-selling product loved by customers worldwide." />
+                    <ProductList products={popular} title="Popular" subtitle="Products" description="Discover our best-selling product loved by customers worldwide." onShowMore={handleShowMorePopular} />
                 </div>
             )}
 

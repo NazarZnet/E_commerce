@@ -19,7 +19,7 @@ const rootReducer = combineReducers({
     auth: authReducer, // Add the auth slice
 });
 
-// Wrap rootReducer with persistReducer
+// Wrap rootReducer with persistReducer  
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 // Configure the store

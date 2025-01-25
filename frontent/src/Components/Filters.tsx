@@ -10,62 +10,42 @@ interface FiltersProps {
 }
 
 const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
+  console.log("Filters component rendered");
   const dispatch = useDispatch();
   const savedFilters = useSelector((state: RootState) => state.filters);
 
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    savedFilters.category || null
-  );
-  const [minPrice, setMinPrice] = useState<string>(
-    savedFilters.minPrice?.toString() || "0"
-  );
-  const [maxPrice, setMaxPrice] = useState<string>(
-    savedFilters.maxPrice?.toString() || maxProductPrice.toString()
-  );
   const [characteristicFilters, setCharacteristicFilters] = useState<
     Record<string, string | number | boolean | { min?: number; max?: number }>
-  >(savedFilters.characteristics || {});
+  >({});
   const [priceRange, setPriceRange] = useState<[number, number]>([
-    Number(minPrice),
-    Number(maxPrice),
+    savedFilters.minPrice ?? 0,
+    savedFilters.maxPrice ?? maxProductPrice,
   ]);
 
+  const selectedCategory = savedFilters.category;
   const currentCategory = categories.find(
     (category) => category.name === selectedCategory
   );
 
-  const previousCategoryRef = useRef<string | null>(selectedCategory);
+  // Ref to track whether the initial mount has completed
+  const isInitialized = useRef(false);
 
-  // Reset characteristic filters when the selected category changes (user-triggered)
-  useEffect(() => {
-    if (selectedCategory !== previousCategoryRef.current) {
-      setCharacteristicFilters({}); // Reset only on user-triggered category change
-    }
-    previousCategoryRef.current = selectedCategory; // Update the previous category
-  }, [selectedCategory]);
-
-  // Initialize characteristic filters based on the selected category
-  // Reset characteristic filters and ensure they only include relevant characteristics
+  // Sync characteristic filters with the selected category
   useEffect(() => {
     if (currentCategory?.characteristics) {
       const relevantCharacteristics = new Set(
         currentCategory.characteristics.map((char) => char.name)
       );
 
-      // Filter out irrelevant characteristics
-      const filteredCharacteristicFilters = Object.keys(characteristicFilters)
+      const filteredCharacteristics = Object.keys(savedFilters.characteristics)
         .filter((key) => relevantCharacteristics.has(key))
         .reduce((acc, key) => {
-          acc[key] = characteristicFilters[key];
+          acc[key] = savedFilters.characteristics[key];
           return acc;
-        }, {} as typeof characteristicFilters);
+        }, {} as typeof savedFilters.characteristics);
 
-      // Initialize new filters for any missing characteristics
-      const newCharacteristicFilters: Record<
-        string,
-        string | number | boolean | { min?: number; max?: number }
-      > = { ...filteredCharacteristicFilters };
+      const newCharacteristicFilters = { ...filteredCharacteristics };
 
       currentCategory.characteristics.forEach((characteristic) => {
         if (!(characteristic.name in newCharacteristicFilters)) {
@@ -100,58 +80,61 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
         }
       });
 
-      // Only update state if filters have changed
-      if (
-        JSON.stringify(newCharacteristicFilters) !==
-        JSON.stringify(characteristicFilters)
-      ) {
-        setCharacteristicFilters(newCharacteristicFilters);
-      }
+      setCharacteristicFilters(newCharacteristicFilters);
     }
-  }, [currentCategory, categories, characteristicFilters]);
-  // Update filters in Redux
+  }, [currentCategory, categories, savedFilters.characteristics]);
   useEffect(() => {
+    if (!selectedCategory) {
+      setCharacteristicFilters({});
+    }
+  }, [selectedCategory]);
+
+  // Sync Redux state with local state when changes occur
+  useEffect(() => {
+    if (!isInitialized.current) {
+      isInitialized.current = true;
+      return;
+    }
+
     const filters = {
       category: selectedCategory,
-      minPrice: minPrice ? Number(minPrice) : null,
-      maxPrice: maxPrice ? Number(maxPrice) : null,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
       characteristics: characteristicFilters,
     };
 
     if (JSON.stringify(filters) !== JSON.stringify(savedFilters)) {
+      console.log("Filters useEffect triggered", filters, "Saved filters", savedFilters);
       dispatch(setFilters(filters));
     }
-  }, [
-    selectedCategory,
-    minPrice,
-    maxPrice,
-    characteristicFilters,
-    dispatch,
-    savedFilters,
-  ]);
+  }, [selectedCategory, priceRange, characteristicFilters, dispatch, savedFilters]);
 
   const handleSliderChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     isMin: boolean
   ) => {
     const value = Number(e.target.value);
-    if (isMin) {
-      setMinPrice(value.toString());
-      setPriceRange([value, priceRange[1]]);
-    } else {
-      setMaxPrice(value.toString());
-      setPriceRange([priceRange[0], value]);
-    }
+    setPriceRange((prev) =>
+      isMin ? [value, prev[1]] : [prev[0], value]
+    );
   };
 
   const handleCharacteristicChange = (
     characteristic: CategoryCharacteristic,
     value: string | number | boolean | { min?: number; max?: number }
   ) => {
-    setCharacteristicFilters((prev) => ({
-      ...prev,
+    const updatedCharacteristics = {
+      ...characteristicFilters,
       [characteristic.name]: value,
-    }));
+    };
+
+    setCharacteristicFilters(updatedCharacteristics);
+    dispatch(
+      setFilters({
+        ...savedFilters,
+        characteristics: updatedCharacteristics,
+      })
+    );
   };
 
   const handleCheckboxChange = (
@@ -171,25 +154,31 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
       };
     });
   };
-
   return (
-    <div className="absolute top-20 left-0 z-40">
+    <div className="absolute top-20 left-0 z-40 w-full">
       <button
         onClick={() => setShowFilters((prev) => !prev)}
-        className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition w-full"
+        className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition w-36"
       >
         Filters
       </button>
 
       {showFilters && (
-        <div className="absolute bg-white p-4 rounded-lg shadow-md w-[400px] mt-2">
+        <div className="absolute bg-white p-4 rounded-lg shadow-md w-full md:w-[400px] mt-2">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Filters</h2>
 
           <div className="mb-4">
             <label className="block text-gray-600 mb-2">Category</label>
             <select
               value={selectedCategory || ""}
-              onChange={(e) => setSelectedCategory(e.target.value || null)}
+              onChange={(e) =>
+                dispatch(
+                  setFilters({
+                    ...savedFilters,
+                    category: e.target.value || null,
+                  })
+                )
+              }
               className="w-full p-2 border border-gray-300 rounded"
             >
               <option value="">All Categories</option>
@@ -227,14 +216,28 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
                 type="text"
                 placeholder="Min"
                 value={priceRange[0]}
-                onChange={(e) => setMinPrice(e.target.value)}
+                onChange={(e) =>
+                  dispatch(
+                    setFilters({
+                      ...savedFilters,
+                      minPrice: e.target.value ? Number(e.target.value) : null,
+                    })
+                  )
+                }
                 className="w-1/2 p-2 border border-gray-300 rounded"
               />
               <input
                 type="text"
                 placeholder="Max"
                 value={priceRange[1]}
-                onChange={(e) => setMaxPrice(e.target.value)}
+                onChange={(e) =>
+                  dispatch(
+                    setFilters({
+                      ...savedFilters,
+                      maxPrice: e.target.value ? Number(e.target.value) : null,
+                    })
+                  )
+                }
                 className="w-1/2 p-2 border border-gray-300 rounded"
               />
             </div>
@@ -340,11 +343,14 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
 
           <button
             onClick={() => {
-              setSelectedCategory(null);
-              setMinPrice("0");
-              setMaxPrice(maxProductPrice.toString());
-              setPriceRange([0, maxProductPrice]);
-              setCharacteristicFilters({});
+              dispatch(
+                setFilters({
+                  category: null,
+                  minPrice: 0,
+                  maxPrice: maxProductPrice,
+                  characteristics: {},
+                })
+              );
             }}
             className="bg-transparent border border-orange-500 text-orange-500 py-2 px-4 rounded-lg hover:bg-orange-500 hover:text-white transition w-full"
           >

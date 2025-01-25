@@ -17,10 +17,6 @@ function App() {
             <Route index element={<MainPage />} />
             <Route path="products/:slug" element={<ProductDetailsPage />} />
             <Route path="products" element={<ShopPage />} />
-            <Route
-              path="products/:categorySlug"
-              element={<ShopPage />}
-            />
             <Route path="order" element={<OrderPage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="profile" element={<ProfilePage />} />

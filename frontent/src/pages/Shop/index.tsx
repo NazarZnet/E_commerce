@@ -1,24 +1,22 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
 
+import { useSelector } from "react-redux";
 import { Product } from "../../interfaces/product";
 import { getCategories } from "../../utils/api";
 import Filters from "../../Components/Filters";
 import ProductCard from "../../Components/ProductCart";
 import { Category } from "../../interfaces/category";
 import { RootState } from "../../redux/store";
-import { setFilters } from "../../redux/slices/filterSlice";
 
 const ShopPage: React.FC = () => {
-  const { categorySlug } = useParams<{ categorySlug?: string }>();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [maxProductPrice, setMaxProductPrice] = useState<number | null>(null);
+  const [forceRender, setForceRender] = useState(0);
 
   const filters = useSelector((state: RootState) => state.filters);
-  const dispatch = useDispatch();
+
 
   useEffect(() => {
     // Fetch categories and products
@@ -120,13 +118,9 @@ const ShopPage: React.FC = () => {
 
     setFilteredProducts(updatedProducts);
   }, [filters, products]);
-
-  // Update Redux filters if categorySlug changes
   useEffect(() => {
-    if (categorySlug && filters.category !== categorySlug) {
-      dispatch(setFilters({ ...filters, category: categorySlug }));
-    }
-  }, [categorySlug, dispatch, filters]);
+    setForceRender((prev) => prev + 1);
+  }, [filters]);
 
   return (
     <div className="bg-gray-100 min-h-screen p-4">
@@ -140,7 +134,7 @@ const ShopPage: React.FC = () => {
         )}
 
         {/* Products Section */}
-        <div className="mt-40 grid grid-cols-4 col-span-4 gap-6">
+        <div className="mt-40 w-full grid justify-items-center items-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 col-span-4  gap-6">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />

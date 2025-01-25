@@ -7,11 +7,14 @@ import countryList from 'react-select-country-list'
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 import "./style.css"
-import { fetchProfile } from "../../utils/api";
+import { fetchProfile, refreshAccessToken } from "../../utils/api";
+import { updateTokens } from "../../redux/slices/authSlice";
 const OrderPage: React.FC = () => {
     const dispatch = useDispatch();
     const basket = useSelector((state: RootState) => state.basket);
     const countryOptions = useMemo(() => countryList().getData(), [])
+    const accessToken = useSelector((state: RootState) => state.auth.access_token);
+    const refreshToken = useSelector((state: RootState) => state.auth.refresh_token);
 
 
     const [form, setForm] = useState({
@@ -33,16 +36,45 @@ const OrderPage: React.FC = () => {
     useEffect(() => {
         const loadProfile = async () => {
             try {
-                const data = await fetchProfile(); // Fetch profile data
+                const data = await fetchProfile(accessToken); // Fetch profile data
                 const user = data.user;
                 setForm((prev) => ({ ...prev, ["email"]: user.email, ["first_name"]: user.first_name, ["last_name"]: user.last_name }));
             } catch (err: any) {
-                console.error(err);
+                if (err.response?.status === 401 && refreshToken) {
+                    console.log("Access token expired. Attempting to refresh...");
+                    try {
+                        // Attempt to refresh tokens
+                        const refreshData = await refreshAccessToken(refreshToken);
+                        console.log("Refreshed tokens: ", refreshData);
+
+                        // Update tokens in Redux
+                        dispatch(
+                            updateTokens({
+                                access_token: refreshData.access_token,
+                                refresh_token: refreshData.refresh_token,
+                            })
+                        );
+
+                        // Retry fetching the profile with the new token
+                        const data = await fetchProfile(refreshData.access_token);
+                        const user = data.user;
+                        setForm((prev) => ({ ...prev, ["email"]: user.email, ["first_name"]: user.first_name, ["last_name"]: user.last_name }));
+                    } catch (refreshError) {
+                        console.error("Failed to refresh tokens:", refreshError);
+
+                    }
+                } else {
+                    console.error("Error fetching profile:", err);
+
+                }
             };
         }
 
-        loadProfile();
-    }, []);
+        if (accessToken && refreshToken) {
+
+            loadProfile();
+        }
+    }, [accessToken, refreshToken]);
 
 
     const totalPrice = basket.items.reduce(
@@ -176,7 +208,7 @@ const OrderPage: React.FC = () => {
                             placeholder="Email"
                             value={form.email}
                             onChange={handleInputChange}
-                            className="border p-2 rounded w-full col-span-2"
+                            className="border p-2 rounded w-full md:col-span-2"
                             required
                         />
                         <input

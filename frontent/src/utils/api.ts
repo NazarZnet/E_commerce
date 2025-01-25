@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Category } from "../interfaces/category";
 import { Product, ProductComment } from "../interfaces/product";
-import { UpdateUserInfoPayload, User } from "../interfaces/user";
+import { UpdateUserInfoPayload } from "../interfaces/user";
 
 const API_BASE_URL = '/api';
 
@@ -135,17 +135,8 @@ export const getSimilarProducts = async (slug: string): Promise<Product[]> => {
         return [];
     }
 };
-// Save tokens to localStorage
-const saveTokens = (accessToken: string, refreshToken: string): void => {
-    localStorage.setItem("access_token", accessToken);
-    localStorage.setItem("refresh_token", refreshToken);
-};
 
-// Remove tokens from localStorage
-export const clearTokens = (): void => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-};
+
 
 // Generate a temporary password
 export const generateTempPassword = async (email: string): Promise<void> => {

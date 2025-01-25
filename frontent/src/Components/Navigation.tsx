@@ -1,15 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
 import { removeItem, updateQuantity, clearBasket } from "../redux/slices/basketSlice";
 import logo from "../assets/images/logo.png";
 import { Link, useNavigate } from "react-router-dom";
+import { getCategories } from "../utils/api";
+import { setFilters } from "../redux/slices/filterSlice";
+import { Category } from "../interfaces/category";
 
 const Navigation: React.FC = () => {
   const [isBasketOpen, setIsBasketOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isHoveringCategories, setIsHoveringCategories] = useState(false);
+
   const basket = useSelector((state: RootState) => state.basket);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch categories when the component mounts
+    const fetchCategories = async () => {
+      const fetchedCategories = await getCategories();
+      setCategories(fetchedCategories);
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleRemove = (productId: number) => {
     dispatch(removeItem(productId));
@@ -28,6 +46,28 @@ const Navigation: React.FC = () => {
     navigate("/order");
     window.scrollTo(0, 0);
   };
+  let hoverTimeout: number;
+
+  const handleMouseEnter = () => {
+    clearTimeout(hoverTimeout);
+    setIsHoveringCategories(true);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeout = setTimeout(() => setIsHoveringCategories(false), 200);
+  };
+  const handleOpenCategory = (category_name: string) => {
+    dispatch(
+      setFilters({
+        category: category_name,
+        minPrice: null,
+        maxPrice: null,
+        characteristics: {},
+      })
+    );
+    navigate("/products");
+    window.scrollTo(0, 0);
+  };
 
   return (
     <nav
@@ -35,26 +75,71 @@ const Navigation: React.FC = () => {
       style={{ fontFamily: "RubikVinyl" }}
     >
       {/* Left Section: Logo */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2">
         <img src={logo} alt="Logo" className="w-10 h-10" />
         <span className="text-xl font-bold">Ride Future</span>
       </div>
 
+      {/* Burger Menu Button */}
+      <button
+        className="sm:hidden focus:outline-none"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="w-6 h-6 text-white"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3.75 5.75h16.5m-16.5 6.5h16.5m-16.5 6.5h16.5"
+          />
+        </svg>
+      </button>
+
       {/* Center Section: Links */}
-      <ul className="flex space-x-6 font-medium">
+      <ul
+        className={`${isMenuOpen ? "flex" : "hidden"
+          } sm:flex flex-col sm:flex-row absolute sm:static bg-black sm:bg-transparent top-16 left-0 sm:top-auto sm:left-auto w-full sm:w-auto space-y-4 sm:space-y-0 sm:space-x-6 font-medium px-6 sm:px-0 py-4 sm:py-0 z-40`}
+      >
         <li className="hover:text-orange-500 transition">
           <Link to={"/"}>Home</Link>
         </li>
         <li className="hover:text-orange-500 transition">
           <Link to={"/products"}>Shop</Link>
         </li>
-        <li className="hover:text-orange-500 transition">
+        <li
+          className="relative hover:text-orange-500 transition"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <a href="#categories">Categories</a>
+          {isHoveringCategories && (
+            <ul className="absolute top-full left-0 bg-black text-white shadow-md mt-2 rounded-lg w-48">
+              {categories.length > 0 ? (
+                categories.map((category, index) => (
+                  <li
+                    key={index}
+                    className="px-4 py-2 hover:text-orange-500 cursor-pointer transition"
+                    onClick={() => handleOpenCategory(category.name)}
+                  >
+                    {category.name}
+                  </li>
+                ))
+              ) : (
+                <li className="px-4 py-2 text-gray-500">No categories found</li>
+              )}
+            </ul>
+          )}
         </li>
-      </ul>
+      </ul >
 
       {/* Right Section: Profile and Cart */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4" >
         <Link to="/profile" className="hover:text-orange-500 transition w-8 h-8">
           <svg
             fill="#ffffff"
@@ -110,78 +195,82 @@ const Navigation: React.FC = () => {
             </span>
           )}
         </button>
-      </div>
+      </div >
 
       {/* Basket Sidebar */}
-      {isBasketOpen && (
-        <div
-          className=" fixed top-0 right-0 h-full bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300  z-50 w-80 flex flex-col shadow-md"
-        >
-          <div className="bg-black px-4 h-16 flex justify-between items-center ">
-            <h2 className=" text-xl font-bol">Your Basket</h2>
-            <button
-              onClick={() => setIsBasketOpen(false)}
-            >
-              <svg width="25px" height="25px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" fill="#000000" stroke="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>cross-circle</title> <desc>Created with Sketch Beta.</desc> <defs> </defs> <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage"> <g id="Icon-Set" sketch:type="MSLayerGroup" transform="translate(-568.000000, -1087.000000)" fill="#ffffff"> <path d="M584,1117 C576.268,1117 570,1110.73 570,1103 C570,1095.27 576.268,1089 584,1089 C591.732,1089 598,1095.27 598,1103 C598,1110.73 591.732,1117 584,1117 L584,1117 Z M584,1087 C575.163,1087 568,1094.16 568,1103 C568,1111.84 575.163,1119 584,1119 C592.837,1119 600,1111.84 600,1103 C600,1094.16 592.837,1087 584,1087 L584,1087 Z M589.717,1097.28 C589.323,1096.89 588.686,1096.89 588.292,1097.28 L583.994,1101.58 L579.758,1097.34 C579.367,1096.95 578.733,1096.95 578.344,1097.34 C577.953,1097.73 577.953,1098.37 578.344,1098.76 L582.58,1102.99 L578.314,1107.26 C577.921,1107.65 577.921,1108.29 578.314,1108.69 C578.708,1109.08 579.346,1109.08 579.74,1108.69 L584.006,1104.42 L588.242,1108.66 C588.633,1109.05 589.267,1109.05 589.657,1108.66 C590.048,1108.27 590.048,1107.63 589.657,1107.24 L585.42,1103.01 L589.717,1098.71 C590.11,1098.31 590.11,1097.68 589.717,1097.28 L589.717,1097.28 Z" id="cross-circle" sketch:type="MSShapeGroup"> </path> </g> </g> </g></svg> </button>
-          </div>
+      {
+        isBasketOpen && (
+          <div
+            className="fixed top-0 right-0 h-full bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 z-50 w-80 flex flex-col shadow-md"
+          >
+            <div className="bg-black px-4 h-16 flex justify-between items-center ">
+              <h2 className=" text-xl font-bold">Your Basket</h2>
+              <button
+                onClick={() => setIsBasketOpen(false)}
+                className="text-white"
+              >
+                Close
+              </button>
+            </div>
 
-          {basket.items.length === 0 ? (
-            <div className="font-sans p-4 text-center text-gray-500">
-              <p>Your basket is empty!</p>
-            </div>
-          ) : (
-            <div className=" font-sans p-4 flex flex-col gap-4 overflow-y-auto h-[calc(100%-120px)]">
-              <ul className="space-y-4">
-                {basket.items.map(({ product, quantity }) => (
-                  <li key={product.id} className="flex items-center gap-4">
-                    <img
-                      src={product.gallery[0]?.image}
-                      alt={product.name}
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                    <div className="flex-1">
-                      <Link to={`products/${product.slug}`} className="font-bold text-gray-800">{product.name}</Link>
-                      <p className="text-sm text-gray-500">Price: ${product.discounted_price}</p>
-                      <div className="flex items-center mt-2">
-                        <input
-                          type="number"
-                          value={quantity}
-                          min={1}
-                          onChange={(e) =>
-                            handleUpdateQuantity(product.id, Number(e.target.value))
-                          }
-                          className="w-16 text-center text-black border rounded"
-                        />
-                        <button
-                          onClick={() => handleRemove(product.id)}
-                          className="ml-2 text-orange-500 hover:text-orange-700 transition"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-auto">
-                <button
-                  onClick={handleClearBasket}
-                  className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition w-full"
-                >
-                  Clear Basket
-                </button>
-                <button
-                  onClick={handleBuyNow}
-                  className="mt-2 bg-gray-800 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition w-full"
-                >
-                  Buy Now
-                </button>
+            {basket.items.length === 0 ? (
+              <div className="font-sans p-4 text-center text-gray-500">
+                <p>Your basket is empty!</p>
               </div>
-            </div>
-          )}
-        </div>
-      )}
-    </nav>
+            ) : (
+              <div className="font-sans p-4 flex flex-col gap-4 overflow-y-auto h-[calc(100%-120px)]">
+                <ul className="space-y-4">
+                  {basket.items.map(({ product, quantity }) => (
+                    <li key={product.id} className="flex items-center gap-4">
+                      <img
+                        src={product.gallery[0]?.image}
+                        alt={product.name}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                      <div className="flex-1">
+                        <Link to={`products/${product.slug}`} className="font-bold text-gray-800">{product.name}</Link>
+                        <p className="text-sm text-gray-500">Price: ${product.discounted_price}</p>
+                        <div className="flex items-center mt-2">
+                          <input
+                            type="number"
+                            value={quantity}
+                            min={1}
+                            onChange={(e) =>
+                              handleUpdateQuantity(product.id, Number(e.target.value))
+                            }
+                            className="w-16 text-center text-black border rounded"
+                          />
+                          <button
+                            onClick={() => handleRemove(product.id)}
+                            className="ml-2 text-orange-500 hover:text-orange-700 transition"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-auto">
+                  <button
+                    onClick={handleClearBasket}
+                    className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition w-full"
+                  >
+                    Clear Basket
+                  </button>
+                  <button
+                    onClick={handleBuyNow}
+                    className="mt-2 bg-gray-800 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition w-full"
+                  >
+                    Buy Now
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      }
+    </nav >
   );
 };
 

@@ -3,6 +3,8 @@ import { Category } from '../interfaces/category';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setFilters } from '../redux/slices/filterSlice';
+import { Swiper, SwiperSlide } from "swiper/react";
+import 'swiper/css';
 
 
 interface CategoryCarouselProps {
@@ -50,28 +52,44 @@ const CategoryList: React.FC<CategoryCarouselProps> = ({ categories }) => {
             </div>
 
             {/* Category Grid */}
-            <div className="my-6 flex justify-center gap-8">
-                {categories.map((category) => (
-                    <div
-                        key={category.id}
-                        className=" w-72 flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-lg hover:-translate-y-3 hover:scale-105 transition-all duration-300 "
-                        onClick={() => handleOpenCategory(category.name)}
+            <div className="my-6">
+                <Swiper
+                    spaceBetween={30}
+                    slidesPerView={1.2}
+                    loop={false}
+                    centeredSlides={false}
+                    breakpoints={{
+                        640: { slidesPerView: 2 },
+                        768: { slidesPerView: 2.2 },
+                        1024: { slidesPerView: 3 },
+                        1280: { slidesPerView: 3 },
+                    }}
 
-                    >
+                >
+                    {categories.map((category) => (
+                        <SwiperSlide key={category.id}>
+                            <div
+                                key={category.id}
+                                className=" w-72 flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-lg hover:-translate-y-3 hover:scale-105 transition-all duration-300 "
+                                onClick={() => handleOpenCategory(category.name)}
 
-                        <div
-                            className="text-orange-500 w-20 mb-2"
-                            dangerouslySetInnerHTML={{
-                                __html: sanitizeSVG(category.icon || ''),
-                            }}
-                        />
+                            >
+
+                                <div
+                                    className="text-orange-500 w-20 mb-2"
+                                    dangerouslySetInnerHTML={{
+                                        __html: sanitizeSVG(category.icon || ''),
+                                    }}
+                                />
 
 
-                        <p className="text-sm font-semibold text-gray-800 group-hover:text-orange-600">
-                            {category.name}
-                        </p>
-                    </div>
-                ))}
+                                <p className="text-sm font-semibold text-gray-800 group-hover:text-orange-600">
+                                    {category.name}
+                                </p>
+                            </div>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
             </div>
         </div>
     );

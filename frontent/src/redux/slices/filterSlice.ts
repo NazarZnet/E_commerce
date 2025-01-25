@@ -19,6 +19,7 @@ const filterSlice = createSlice({
     initialState,
     reducers: {
         setFilters: (state, action: PayloadAction<FilterState>) => {
+            console.log("New filters:", action);
             return { ...action.payload };
         },
         resetFilters: () => initialState,

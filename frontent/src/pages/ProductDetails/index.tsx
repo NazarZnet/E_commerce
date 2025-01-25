@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../../redux/slices/basketSlice";
 import { RootState } from "../../redux/store";
 import CommentsList from "../../Components/CommentsList";
+import { setFilters } from "../../redux/slices/filterSlice";
 
 const ProductDetailsPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -17,6 +18,8 @@ const ProductDetailsPage: React.FC = () => {
 
 
   const dispatch = useDispatch();
+  const savedFilters = useSelector((state: RootState) => state.filters);
+
   const navigate = useNavigate();
 
   const productExists = useSelector((state: RootState) =>
@@ -103,6 +106,19 @@ const ProductDetailsPage: React.FC = () => {
 
   const handleAddToBasket = () => {
     dispatch(addItem({ product }));
+  }
+  const handleShowMore = () => {
+    const filters = {
+      ...savedFilters,
+      category: product.category.name,
+
+    };
+
+    if (JSON.stringify(filters) !== JSON.stringify(savedFilters)) {
+      dispatch(setFilters(filters));
+    }
+    navigate("/products");
+    window.scrollTo(0, 0);
   }
 
 
@@ -209,6 +225,7 @@ const ProductDetailsPage: React.FC = () => {
             title="Similar"
             subtitle="Products"
             description={null}
+            onShowMore={handleShowMore}
           />
         }
       </div>

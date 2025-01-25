@@ -1,12 +1,13 @@
 import React from "react";
-
+import { FaFacebook, FaTelegram } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 const Footer: React.FC = () => {
     return (
         <footer className="bg-gray-900 text-gray-300 py-10">
             {/* Container */}
             <div className="max-w-7xl mx-auto px-4">
                 {/* Top Section */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 border-b border-gray-700 pb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8">
                     {/* About Us */}
                     <div>
                         <h3 className="text-lg font-semibold text-white mb-4">About Us</h3>
@@ -17,54 +18,29 @@ const Footer: React.FC = () => {
 
                     {/* Quick Links */}
                     <div>
-                        <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
+                        <h3 className="text-lg font-semibold text-white mb-4">Contact us</h3>
                         <ul className="space-y-2">
+
                             <li>
-                                <a href="/about" className="hover:text-orange-500 transition">
-                                    About Us
-                                </a>
+                                <p className="flex items-center gap-4">
+                                    <MdEmail fontSize={30} fill="#f97316" />
+                                    owneremail@example.com
+                                </p>
                             </li>
                             <li>
-                                <a href="/contact" className="hover:text-orange-500 transition">
-                                    Contact Us
-                                </a>
+                                <p className="flex items-center gap-4">
+                                    <a href="" className="cursor-pointer"><FaTelegram fontSize={30} fill="#f97316" /> </a> @Nickname
+                                </p>
                             </li>
                             <li>
-                                <a href="/faq" className="hover:text-orange-500 transition">
-                                    FAQ
-                                </a>
+                                <p className="flex items-center gap-4">
+                                    <a href="" className="cursor-pointer"><FaFacebook fontSize={30} fill="#f97316" /> </a> @Nickname
+                                </p>
                             </li>
-                            <li>
-                                <a href="/policy" className="hover:text-orange-500 transition">
-                                    Privacy Policy
-                                </a>
-                            </li>
+
                         </ul>
                     </div>
 
-                    {/* Customer Service */}
-                    <div>
-                        <h3 className="text-lg font-semibold text-white mb-4">
-                            Customer Service
-                        </h3>
-                        <ul className="space-y-2">
-                            <li>
-                                <a href="/shipping" className="hover:text-orange-500 transition">
-                                    Shipping & Returns
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/warranty" className="hover:text-orange-500 transition">
-                                    Warranty Information
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/support" className="hover:text-orange-500 transition">
-                                    Support Center
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
 
                     {/* Newsletter */}
                     <div>
@@ -85,19 +61,6 @@ const Footer: React.FC = () => {
                                 Subscribe
                             </button>
                         </form>
-                    </div>
-                </div>
-
-                {/* Bottom Section */}
-                <div className="flex flex-col md:flex-row justify-between items-center mt-8 text-sm text-gray-400">
-                    <p>© 2025 RideFuture. All Rights Reserved.</p>
-                    <div className="flex space-x-4 mt-4 md:mt-0">
-                        <a href="/terms" className="hover:text-orange-500 transition">
-                            Terms of Service
-                        </a>
-                        <a href="/policy" className="hover:text-orange-500 transition">
-                            Privacy Policy
-                        </a>
                     </div>
                 </div>
             </div>
