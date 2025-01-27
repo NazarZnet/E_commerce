@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/store";
-import { removeItem, updateQuantity, clearBasket } from "../../redux/slices/basketSlice";
+import { removeItem, updateQuantity } from "../../redux/slices/basketSlice";
 import { Link } from "react-router-dom";
 import countryList from 'react-select-country-list'
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 import "./style.css"
 import { fetchProfile, refreshAccessToken } from "../../utils/api";
-import { updateTokens } from "../../redux/slices/authSlice";
+import { setAuthData, updateTokens } from "../../redux/slices/authSlice";
 const OrderPage: React.FC = () => {
     const dispatch = useDispatch();
     const basket = useSelector((state: RootState) => state.basket);
@@ -31,7 +31,7 @@ const OrderPage: React.FC = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
+
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -109,7 +109,7 @@ const OrderPage: React.FC = () => {
         const orderData = {
             ...form,
             items: basket.items.map((item) => ({
-                product: item.product.id,
+                product_id: item.product.id,
                 quantity: item.quantity,
             })),
         };
@@ -125,11 +125,25 @@ const OrderPage: React.FC = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
+                console.log(errorData);
                 throw new Error(errorData.message || "Failed to create the order.");
             }
 
-            setSuccess(true);
-            dispatch(clearBasket());
+            const data = await response.json(); // Parse the response JSON
+            console.log("Payment data:", data);
+            dispatch(
+                setAuthData({
+                    access_token: data.access,
+                    refresh_token: data.refresh,
+                    user: data.user,
+                })
+            );
+            if (data.checkout_url) {
+                // Redirect the user to the Stripe Checkout URL
+                window.location.href = data.checkout_url;
+            } else {
+                throw new Error("Checkout URL not provided.");
+            }
         } catch (err: any) {
             setError(err.message || "An error occurred.");
         } finally {
@@ -196,11 +210,7 @@ const OrderPage: React.FC = () => {
                 <form onSubmit={handleSubmit}>
                     <h2 className="text-xl font-semibold mb-2">Shipping Details</h2>
                     {error && <p className="text-red-500 mt-2">{error}</p>}
-                    {success && (
-                        <p className="text-green-500 mt-2">
-                            Order placed successfully! Thank you. We will contact with you in a while!
-                        </p>
-                    )}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6">
                         <input
                             type="email"
@@ -229,15 +239,7 @@ const OrderPage: React.FC = () => {
                             className="border p-2 rounded w-full"
                             required
                         />
-                        {/* <input
-                            type="text"
-                            name="country"
-                            placeholder="Country"
-                            value={form.country}
-                            onChange={handleInputChange}
-                            className="border p-2 rounded w-full"
-                            required
-                        /> */}
+
                         <select
                             id="country"
                             name="country"

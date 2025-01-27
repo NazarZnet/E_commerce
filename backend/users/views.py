@@ -79,7 +79,7 @@ class ProfileView(APIView):
         user = request.user
 
         # Fetch user orders
-        orders = Order.objects.filter(user=user)
+        orders = Order.objects.filter(user=user).order_by("-created_at")
         serializer_context = {"request": request}  # Add the request to context
         orders_data = OrderSerializer(
             orders, many=True, context=serializer_context

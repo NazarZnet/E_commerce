@@ -41,6 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     temp_password = models.CharField(max_length=6, blank=True, null=True)
     temp_password_expiry = models.DateTimeField(blank=True, null=True)
+    stripe_customer_id = models.CharField(max_length=255, blank=True, null=True)
 
     objects = CustomUserManager()
 

@@ -168,7 +168,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
 
-SITE_URL = "http://127.0.0.1:8000"  # Update with your site's URL
+SITE_URL = "http://127.0.0.1:8000"
+FRONTEND_SITE_URL = "http://localhost:5173"
 ADMIN_EMAIL = "nazarznetynyak123@gmail.com"
 
 
@@ -208,3 +209,7 @@ UNFOLD = {
         },
     },
 }
+
+# Payment
+STRIPE_PUBLISHABLE_KEY = "pk_test_51QkXPeP4nZmouXJpX8eBtbRiPrYgJQ23nzAW11wWH18H9YcXzq01SxOPYGZX4inF7FE9s5slPQlsOtKwhthbQauY00Uqxpl3nR"
+STRIPE_SECRET_KEY = "sk_test_51QkXPeP4nZmouXJp5LMSHQu2OaXP8TvUY8gvdryvm2c64iICKkxgo2qReDApcPBA1YvsllXucFX9EJr7L4tcv4TG00kc6wE9zF"

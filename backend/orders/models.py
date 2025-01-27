@@ -5,11 +5,18 @@ from products.models import Product
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        ("pending", "Pending"),
-        ("processing", "Processing"),
-        ("shipped", "Shipped"),
-        ("delivered", "Delivered"),
-        ("canceled", "Canceled"),
+        ("pending", "Pending"),  # Order placed but not yet processed
+        ("confirmed", "Confirmed"),  # Order confirmed and payment successful
+        ("processing", "Processing"),  # Order is being prepared
+        (
+            "ready_for_shipping",
+            "Ready for Shipping",
+        ),  # Order packed and ready for shipment
+        ("shipped", "Shipped"),  # Order shipped to the customer
+        ("out_for_delivery", "Out for Delivery"),  # Order with the delivery agent
+        ("delivered", "Delivered"),  # Order successfully delivered to the customer
+        ("canceled", "Canceled"),  # Order canceled by the user or admin
+        ("returned", "Returned"),  # Order returned by the customer
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")

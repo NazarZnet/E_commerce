@@ -4,6 +4,7 @@ import Layout from "./Components/Layout";
 import OrderPage from "./pages/Order";
 import LoginPage from "./pages/Login";
 import ProfilePage from "./pages/Profile";
+import OrderStatusPage from "./pages/OrderStatus";
 
 const MainPage = lazy(() => import("./pages/Main"));
 const ShopPage = lazy(() => import("./pages/Shop"));
@@ -18,6 +19,7 @@ function App() {
             <Route path="products/:slug" element={<ProductDetailsPage />} />
             <Route path="products" element={<ShopPage />} />
             <Route path="order" element={<OrderPage />} />
+            <Route path="order/finished" element={<OrderStatusPage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="profile" element={<ProfilePage />} />
 

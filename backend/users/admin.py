@@ -25,7 +25,8 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
                 )
             },
         ),
-        ("Important dates", {"fields": ("last_login", "date_joined")}),
+        ("Payments", {"fields": ("stripe_customer_id",)}),
+        ("Important dates", {"fields": ("date_joined",)}),
     )
     readonly_fields = ("date_joined",)
     add_fieldsets = (
