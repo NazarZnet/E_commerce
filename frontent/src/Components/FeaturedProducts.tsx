@@ -4,6 +4,8 @@ import ProductCard from "./ProductCart";
 import { Product } from "../interfaces/product";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useTranslation } from "react-i18next";
+
 import 'swiper/css';
 
 interface FeaturedProductsProps {
@@ -12,9 +14,11 @@ interface FeaturedProductsProps {
 
 const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const showAllProducts = () => {
         navigate("/products");
         window.scrollTo(0, 0);
+
     };
 
     return (
@@ -27,11 +31,11 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
                     {/* Description */}
                     <div>
                         <h2 className="text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
-                            Featured <br /> <span className="text-orange-500">Products</span>
+                            {t("featured")} <br /> <span className="text-orange-500"> {t("products")}</span>
                         </h2>
 
                         <p className="text-gray-700 mb-6 text-sm lg:text-base">
-                            Discover the best selection of electric scooters, bikes, and accessories at unbeatable prices. Designed for your comfort and ease.
+                            {t("featured_products_text")}
                         </p>
 
                         {/* Button */}
@@ -39,7 +43,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
                             onClick={showAllProducts}
                             className="bg-orange-500 text-white py-3 px-6 rounded-full text-sm lg:text-base hover:bg-orange-600 shadow-lg transition-all duration-300 transform hover:scale-105"
                         >
-                            Show more
+                            {t("show_more")}
                         </button>
                     </div>
 

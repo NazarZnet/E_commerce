@@ -7,6 +7,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { getCategories } from "../utils/api";
 import { setFilters } from "../redux/slices/filterSlice";
 import { Category } from "../interfaces/category";
+import { useTranslation } from "react-i18next";
+import LocaleSwitcher from "../i18n/LocaleSwitcher";
 
 const Navigation: React.FC = () => {
   const [isBasketOpen, setIsBasketOpen] = useState(false);
@@ -18,6 +20,7 @@ const Navigation: React.FC = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Fetch categories when the component mounts
@@ -71,11 +74,11 @@ const Navigation: React.FC = () => {
 
   return (
     <nav
-      className="h-16 fixed z-50 w-full flex justify-between items-center px-6 py-4 bg-black text-white shadow-md"
+      className="h-16 fixed z-50 w-full flex justify-between items-center p-2 md:p-4 bg-black text-white shadow-md"
       style={{ fontFamily: "RubikVinyl" }}
     >
       {/* Left Section: Logo */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center md:space-x-2">
         <img src={logo} alt="Logo" className="w-10 h-10" />
         <span className="text-xl font-bold">Ride Future</span>
       </div>
@@ -107,17 +110,17 @@ const Navigation: React.FC = () => {
           } sm:flex flex-col sm:flex-row absolute sm:static bg-black sm:bg-transparent top-16 left-0 sm:top-auto sm:left-auto w-full sm:w-auto space-y-4 sm:space-y-0 sm:space-x-6 font-medium px-6 sm:px-0 py-4 sm:py-0 z-40`}
       >
         <li className="hover:text-orange-500 transition">
-          <Link to={"/"}>Home</Link>
+          <Link to={"/"}>{t("nav_home")}</Link>
         </li>
         <li className="hover:text-orange-500 transition">
-          <Link to={"/products"}>Shop</Link>
+          <Link to={"/products"}>{t("nav_shop")}</Link>
         </li>
         <li
           className="relative hover:text-orange-500 transition"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <a href="#categories">Categories</a>
+          <a href="#categories">{t("nav_categories")}</a>
           {isHoveringCategories && (
             <ul className="absolute top-full left-0 bg-black text-white shadow-md mt-2 rounded-lg w-48">
               {categories.length > 0 ? (
@@ -139,7 +142,7 @@ const Navigation: React.FC = () => {
       </ul >
 
       {/* Right Section: Profile and Cart */}
-      <div className="flex items-center space-x-4" >
+      <div className="flex items-center md:space-x-4" >
         <Link to="/profile" className="hover:text-orange-500 transition w-8 h-8">
           <svg
             fill="#ffffff"
@@ -195,6 +198,7 @@ const Navigation: React.FC = () => {
             </span>
           )}
         </button>
+        <LocaleSwitcher />
       </div >
 
       {/* Basket Sidebar */}
@@ -204,18 +208,18 @@ const Navigation: React.FC = () => {
             className="fixed top-0 right-0 h-full bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 z-50 w-80 flex flex-col shadow-md"
           >
             <div className="bg-black px-4 h-16 flex justify-between items-center ">
-              <h2 className=" text-xl font-bold">Your Basket</h2>
+              <h2 className=" text-xl font-bold">{t("basket_title")}</h2>
               <button
                 onClick={() => setIsBasketOpen(false)}
                 className="text-white"
               >
-                Close
+                {t("close_btn")}
               </button>
             </div>
 
             {basket.items.length === 0 ? (
               <div className="font-sans p-4 text-center text-gray-500">
-                <p>Your basket is empty!</p>
+                <p>{t("empty_basket")}</p>
               </div>
             ) : (
               <div className="font-sans p-4 flex flex-col gap-4 overflow-y-auto h-[calc(100%-120px)]">
@@ -229,7 +233,7 @@ const Navigation: React.FC = () => {
                       />
                       <div className="flex-1">
                         <Link to={`products/${product.slug}`} className="font-bold text-gray-800">{product.name}</Link>
-                        <p className="text-sm text-gray-500">Price: ${product.discounted_price}</p>
+                        <p className="text-sm text-gray-500"> {t("price")} ${product.discounted_price}</p>
                         <div className="flex items-center mt-2">
                           <input
                             type="number"
@@ -244,7 +248,7 @@ const Navigation: React.FC = () => {
                             onClick={() => handleRemove(product.id)}
                             className="ml-2 text-orange-500 hover:text-orange-700 transition"
                           >
-                            Remove
+                            {t("remove_btn")}
                           </button>
                         </div>
                       </div>
@@ -256,13 +260,13 @@ const Navigation: React.FC = () => {
                     onClick={handleClearBasket}
                     className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition w-full"
                   >
-                    Clear Basket
+                    {t("clear_basket")}
                   </button>
                   <button
                     onClick={handleBuyNow}
                     className="mt-2 bg-gray-800 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition w-full"
                   >
-                    Buy Now
+                    {t("buy_now")}
                   </button>
                 </div>
               </div>

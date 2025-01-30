@@ -3,6 +3,7 @@ import { Category, CategoryCharacteristic } from "../interfaces/category";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { setFilters } from "../redux/slices/filterSlice";
+import { useTranslation } from "react-i18next";
 
 interface FiltersProps {
   categories: Category[];
@@ -10,9 +11,11 @@ interface FiltersProps {
 }
 
 const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
-  console.log("Filters component rendered");
   const dispatch = useDispatch();
   const savedFilters = useSelector((state: RootState) => state.filters);
+
+  const { t } = useTranslation();
+
 
   const [showFilters, setShowFilters] = useState(false);
   const [characteristicFilters, setCharacteristicFilters] = useState<
@@ -104,7 +107,6 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
     };
 
     if (JSON.stringify(filters) !== JSON.stringify(savedFilters)) {
-      console.log("Filters useEffect triggered", filters, "Saved filters", savedFilters);
       dispatch(setFilters(filters));
     }
   }, [selectedCategory, priceRange, characteristicFilters, dispatch, savedFilters]);
@@ -160,15 +162,15 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
         onClick={() => setShowFilters((prev) => !prev)}
         className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition w-36"
       >
-        Filters
+        {t("filters")}
       </button>
 
       {showFilters && (
         <div className="absolute bg-white p-4 rounded-lg shadow-md w-full md:w-[400px] mt-2">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Filters</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">{t("filters")}</h2>
 
           <div className="mb-4">
-            <label className="block text-gray-600 mb-2">Category</label>
+            <label className="block text-gray-600 mb-2">{t("category")}</label>
             <select
               value={selectedCategory || ""}
               onChange={(e) =>
@@ -181,7 +183,7 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
               }
               className="w-full p-2 border border-gray-300 rounded"
             >
-              <option value="">All Categories</option>
+              <option value="">{t("all_categories")}</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.name}>
                   {category.name}
@@ -192,7 +194,7 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
 
           {/* Price Range Filter */}
           <div className="mb-4">
-            <label className="block text-gray-600 mb-2">Price Range</label>
+            <label className="block text-gray-600 mb-2">{t("price_range")}</label>
             <div className="flex items-center gap-2">
               <input
                 type="range"
@@ -354,7 +356,7 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
             }}
             className="bg-transparent border border-orange-500 text-orange-500 py-2 px-4 rounded-lg hover:bg-orange-500 hover:text-white transition w-full"
           >
-            Clear Filters
+            {t("clear_filters")}
           </button>
         </div>
       )}

@@ -4,9 +4,11 @@ import { Product } from "../interfaces/product";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/css';
+import { useTranslation } from "react-i18next";
 
 
 const ProductList: React.FC<{ products: Product[], title: string, subtitle: string, description: string | null, onShowMore: () => void }> = ({ products, title, subtitle, description, onShowMore }) => {
+    const { t } = useTranslation();
     return (
         <section >
             {/* Section Header */}
@@ -24,7 +26,7 @@ const ProductList: React.FC<{ products: Product[], title: string, subtitle: stri
 
                 </div>
                 <button onClick={onShowMore} className="h-14 bg-orange-500 text-white py-3 px-6 rounded-full text-sm lg:text-base hover:bg-orange-600 shadow-lg transition-all duration-300 transform hover:scale-105">
-                    Show more
+                    {t("show_more")}
                 </button>
             </div>
 

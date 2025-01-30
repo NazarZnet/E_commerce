@@ -9,11 +9,13 @@ import { addItem } from "../../redux/slices/basketSlice";
 import { RootState } from "../../redux/store";
 import CommentsList from "../../Components/CommentsList";
 import { setFilters } from "../../redux/slices/filterSlice";
+import { useTranslation } from "react-i18next";
 
 const ProductDetailsPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+  const { t } = useTranslation();
 
 
 
@@ -170,7 +172,7 @@ const ProductDetailsPage: React.FC = () => {
               className={`${product.stock > 0 ? "text-green-500" : "text-red-500"
                 } font-semibold`}
             >
-              {product.stock > 0 ? "In Stock" : "Out of Stock"}
+              {product.stock > 0 ? t("in_stock") : t("out_of_stock")}
             </p>
             <p className="text-gray-700 leading-relaxed">
               {product.description}
@@ -207,10 +209,10 @@ const ProductDetailsPage: React.FC = () => {
           {/* Actions */}
           <div className="flex gap-4">
             <button onClick={handleAddToBasket} className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition">
-              Add to Basket
+              {t("add_to_basket")}
             </button>
             <button onClick={handleBuyNow} className="bg-gray-800 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition">
-              Buy Now
+              {t("buy_now")}
             </button>
           </div>
         </div>
@@ -222,8 +224,8 @@ const ProductDetailsPage: React.FC = () => {
         {
           <ProductList
             products={similarProducts}
-            title="Similar"
-            subtitle="Products"
+            title={t("similar")}
+            subtitle={t("products")}
             description={null}
             onShowMore={handleShowMore}
           />

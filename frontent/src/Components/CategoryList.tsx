@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { setFilters } from '../redux/slices/filterSlice';
 import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/css';
+import { useTranslation } from 'react-i18next';
 
 
 interface CategoryCarouselProps {
@@ -14,6 +15,7 @@ interface CategoryCarouselProps {
 const CategoryList: React.FC<CategoryCarouselProps> = ({ categories }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const sanitizeSVG = (svgContent: string): string => {
         const parser = new DOMParser();
@@ -47,7 +49,7 @@ const CategoryList: React.FC<CategoryCarouselProps> = ({ categories }) => {
             {/* Title */}
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-3xl font-bold text-gray-800">
-                    Browse By <span className="text-orange-500">Category</span>
+                    {t("browse_by")} <span className="text-orange-500">{t("category")}</span>
                 </h2>
             </div>
 

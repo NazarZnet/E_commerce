@@ -3,6 +3,7 @@ import { Product } from "../interfaces/product";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addItem } from "../redux/slices/basketSlice";
+import { useTranslation } from "react-i18next";
 
 interface ProductCardProps {
     product: Product;
@@ -11,6 +12,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const { t } = useTranslation();
 
     const renderDiscountBadge = () => {
         if (product.discount_percentage && product.discount_percentage > 0) {
@@ -90,7 +92,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 />
             </div>
             {/* Product Details */}
-            <div className="h-[30%] p-4 flex flex-col justify-between">
+            <div className="h-[30%] p-2 flex flex-col justify-between">
                 <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
                 {renderStars()}
                 <div className="flex items-center justify-between mt-1">
@@ -109,12 +111,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 </div>
                 <div className="flex gap-1 mt-3">
                     <button onClick={handleAddToBasket} className="bg-orange-500 text-white p-2 rounded-lg hover:bg-orange-600 transition w-full">
-                        Add to Basket
+                        {t("add_to_basket")}
                     </button>
-                    <button className="group bg-transparent border border-orange-500 text-orange-500 py-2 px-4 rounded-lg hover:bg-orange-500 hover:text-white transition w-full"
+                    <button className="group bg-transparent border border-orange-500 text-orange-500 p-2 rounded-lg hover:bg-orange-500 hover:text-white transition w-full"
                         onClick={() => goToDetails(product.slug)}
                     >
-                        Details
+                        {t("details_btn")}
                         {/* Description Overlay */}
                         <div className="absolute inset-0 h-[65%] bg-black bg-opacity-60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-full group-hover:translate-y-0 overflow-hidden -z-10 group-hover:z-20">
                             <p className="p-4 text-sm line-clamp-[12] overflow-hidden text-ellipsis">

@@ -5,6 +5,7 @@ import { deleteComment, refreshAccessToken, saveComment } from "../utils/api";
 import { RootState } from "../redux/store";
 import { useNavigate } from "react-router-dom";
 import { updateTokens } from "../redux/slices/authSlice";
+import { useTranslation } from "react-i18next";
 
 const CommentsList: React.FC<{ product_comments: ProductComment[], productId: number }> = ({ product_comments, productId }) => {
     const [newComment, setNewComment] = useState<string>("");
@@ -18,6 +19,8 @@ const CommentsList: React.FC<{ product_comments: ProductComment[], productId: nu
     const accessToken = useSelector((state: RootState) => state.auth.access_token);
     const refreshToken = useSelector((state: RootState) => state.auth.refresh_token);
     const dispatch = useDispatch();
+
+    const { t } = useTranslation();
 
     const handleCommentSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -145,7 +148,7 @@ const CommentsList: React.FC<{ product_comments: ProductComment[], productId: nu
         <div className="mt-12 max-w-4xl mx-auto">
             {/* Add Comment Form */}
             <form onSubmit={handleCommentSubmit} className="my-8">
-                <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
+                <h3 className="text-lg font-semibold mb-4">{t("write_review")}</h3>
                 <div className="flex items-center gap-2 mb-4">
                     <div className="flex items-center">
                         {renderStars(hoverRating || rating)}
@@ -153,7 +156,7 @@ const CommentsList: React.FC<{ product_comments: ProductComment[], productId: nu
                 </div>
                 <textarea
                     className="w-full border rounded-lg p-2 mb-4"
-                    placeholder="Write your review..."
+                    placeholder={t("write_your_review")}
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     rows={4}
@@ -165,7 +168,7 @@ const CommentsList: React.FC<{ product_comments: ProductComment[], productId: nu
                     type="submit"
                     className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition"
                 >
-                    Submit
+                    {t("submit_btn")}
                 </button>
             </form>
 

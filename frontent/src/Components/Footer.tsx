@@ -1,7 +1,9 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { FaFacebook, FaTelegram } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 const Footer: React.FC = () => {
+    const { t } = useTranslation();
     return (
         <footer className="bg-gray-900 text-gray-300 py-10">
             {/* Container */}
@@ -10,15 +12,15 @@ const Footer: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8">
                     {/* About Us */}
                     <div>
-                        <h3 className="text-lg font-semibold text-white mb-4">About Us</h3>
+                        <h3 className="text-lg font-semibold text-white mb-4"> {t("about_us")} </h3>
                         <p className="text-sm">
-                            We offer a wide range of premium electric scooters and accessories to power your ride into the future. Quality and satisfaction guaranteed!
+                            {t("about_us_description")}
                         </p>
                     </div>
 
                     {/* Quick Links */}
                     <div>
-                        <h3 className="text-lg font-semibold text-white mb-4">Contact us</h3>
+                        <h3 className="text-lg font-semibold text-white mb-4"> {t("contact_us")} </h3>
                         <ul className="space-y-2">
 
                             <li>
@@ -44,21 +46,21 @@ const Footer: React.FC = () => {
 
                     {/* Newsletter */}
                     <div>
-                        <h3 className="text-lg font-semibold text-white mb-4">Stay Updated</h3>
+                        <h3 className="text-lg font-semibold text-white mb-4"> {t("stay_updated")} </h3>
                         <p className="text-sm mb-4">
-                            Sign up for our newsletter to get the latest updates on new arrivals and exclusive offers.
+                            {t("stay_updated_description")}
                         </p>
                         <form className="flex">
                             <input
                                 type="email"
-                                placeholder="Enter your email"
-                                className="w-full px-4 py-2 rounded-l-md focus:outline-none"
+                                placeholder={t("auth_form_email_placeholder")}
+                                className="w-3/5 px-4 py-2 rounded-l-md focus:outline-none"
                             />
                             <button
                                 type="submit"
-                                className="bg-orange-500 text-white px-4 py-2 rounded-r-md hover:bg-orange-600 transition"
+                                className="bg-orange-500 text-white px-1 py-2 rounded-r-md hover:bg-orange-600 transition"
                             >
-                                Subscribe
+                                {t("subscribe_btn")}
                             </button>
                         </form>
                     </div>

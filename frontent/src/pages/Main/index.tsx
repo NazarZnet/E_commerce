@@ -7,6 +7,8 @@ import ProductList from "../../Components/ProductList";
 import { Product } from "../../interfaces/product";
 import { Category } from "../../interfaces/category";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 
 export default function Main() {
 
@@ -14,6 +16,8 @@ export default function Main() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [popular, setPopular] = useState<Product[]>([]);
     const navigate = useNavigate();
+
+    const { t } = useTranslation();
 
     useEffect(() => {
         async function getProducts() {
@@ -61,10 +65,10 @@ export default function Main() {
                 <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
                     {/* Headline */}
                     <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-                        Ride Into <span className="text-orange-500">The Future</span>
+                        {t("header_tag_one")} <span className="text-orange-500">{t("header_tag_two")}</span>
                     </h1>
                     <p className="text-lg md:text-xl mb-8">
-                        Discover cutting-edge electric scooters and bikes for the modern world.
+                        {t("header_text")}
                     </p>
                     {/* Call-to-Action Button */}
                     <div className="space-x-4">
@@ -72,13 +76,13 @@ export default function Main() {
                             href="#featured_products"
                             className="bg-orange-500 text-white py-3 px-6 rounded-lg text-lg hover:bg-orange-600 transition"
                         >
-                            Shop Now
+                            {t("shop_now")}
                         </a>
                         <a
                             href="#learn-more"
                             className="bg-transparent border border-white py-3 px-6 rounded-lg text-lg hover:bg-white hover:text-gray-900 transition"
                         >
-                            Learn More
+                            {t("learn_more")}
                         </a>
                     </div>
                 </div>
@@ -94,7 +98,7 @@ export default function Main() {
             {popular && popular.length > 0 && (
                 <div className="w-full px-6 py-12 bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 shadow-lg">
 
-                    <ProductList products={popular} title="Popular" subtitle="Products" description="Discover our best-selling product loved by customers worldwide." onShowMore={handleShowMorePopular} />
+                    <ProductList products={popular} title={t("popular")} subtitle={t("products")} description={t("popular_products_text")} onShowMore={handleShowMorePopular} />
                 </div>
             )}
 

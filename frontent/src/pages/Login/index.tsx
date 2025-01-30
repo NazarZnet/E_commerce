@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { generateTempPassword, verifyTempPassword } from "../../utils/api";
 import { useDispatch } from "react-redux";
 import { setAuthData } from "../../redux/slices/authSlice";
+import { useTranslation } from "react-i18next";
 const LoginPage: React.FC = () => {
     const [step, setStep] = useState<"email" | "verify">("email");
     const [form, setForm] = useState({ email: "", temp_password: "" });
@@ -11,6 +12,8 @@ const LoginPage: React.FC = () => {
     const [timer, setTimer] = useState(600); // 10 minutes in seconds
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    const { t } = useTranslation();
     useEffect(() => {
         let interval: NodeJS.Timeout;
 
@@ -23,7 +26,7 @@ const LoginPage: React.FC = () => {
         if (timer === 0) {
             setStep("email");
             setForm({ email: "", temp_password: "" });
-            setError("Verification time expired. Please request a new code.");
+            setError(t("auth_verify_exp_error"));
         }
 
         return () => clearInterval(interval);
@@ -50,7 +53,8 @@ const LoginPage: React.FC = () => {
             setStep("verify");
             setTimer(600); // Reset the timer to 10 minutes
         } catch (err: any) {
-            setError(err.message || "An error occurred.");
+            console.error("Failed to generate temp password", err);
+            setError(t("auth_error"));
         } finally {
             setLoading(false);
         }
@@ -62,7 +66,7 @@ const LoginPage: React.FC = () => {
         setLoading(true);
 
         if (!form.temp_password.trim()) {
-            setError("Temporary password cannot be empty.");
+            setError(t("auth_temp_pass_error"));
             setLoading(false);
             return;
         }
@@ -79,7 +83,8 @@ const LoginPage: React.FC = () => {
             );
             navigate("/profile");
         } catch (err: any) {
-            setError(err.message || "An error occurred.");
+            console.error("Failed to verify temp password", err);
+            setError(t("auth_error"));
         } finally {
             setLoading(false);
         }
@@ -90,7 +95,7 @@ const LoginPage: React.FC = () => {
             <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-md">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-bold text-gray-800">
-                        {step === "email" ? "Login or Sign Up" : "Verify Your Code"}
+                        {step === "email" ? t("auth_title_login") : t("auth_title_verify")}
                     </h1>
                     {step === "verify" && (
                         <div className="text-red-500 font-bold">
@@ -105,7 +110,7 @@ const LoginPage: React.FC = () => {
                     <form onSubmit={handleEmailSubmit} className="space-y-4">
                         <div>
                             <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
-                                Email Address
+                                {t("auth_form_title")}
                             </label>
                             <input
                                 type="email"
@@ -114,7 +119,7 @@ const LoginPage: React.FC = () => {
                                 value={form.email}
                                 onChange={handleInputChange}
                                 className="border p-2 rounded w-full"
-                                placeholder="Enter your email"
+                                placeholder={t("auth_form_email_placeholder")}
                                 required
                             />
                         </div>
@@ -123,14 +128,14 @@ const LoginPage: React.FC = () => {
                             className="mt-4 w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition"
                             disabled={loading}
                         >
-                            {loading ? "Sending Code..." : "Send Code"}
+                            {loading ? t("auth_btn_send_loading") : t("auth_btn_send")}
                         </button>
                     </form>
                 ) : (
                     <form onSubmit={handleVerifySubmit} className="space-y-4">
                         <div>
                             <label htmlFor="tempPassword" className="block text-gray-700 font-medium mb-2">
-                                Temporary Password
+                                {t("auth_temp_password")}
                             </label>
                             <input
                                 type="text"
@@ -139,7 +144,7 @@ const LoginPage: React.FC = () => {
                                 value={form.temp_password}
                                 onChange={handleInputChange}
                                 className="border p-2 rounded w-full"
-                                placeholder="Enter the code sent to your email"
+                                placeholder={t("auth_form_pass_placeholder")}
                                 required
                             />
                         </div>
@@ -148,7 +153,7 @@ const LoginPage: React.FC = () => {
                             className="mt-4 w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition"
                             disabled={loading}
                         >
-                            {loading ? "Verifying..." : "Verify and Login"}
+                            {loading ? t("auth_btn_verify_loading") : t("auth_btn_verify")}
                         </button>
                     </form>
                 )}

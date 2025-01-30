@@ -6,6 +6,7 @@ import { Order } from "../../interfaces/order";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { clearAuthData, setAuthData, updateTokens } from "../../redux/slices/authSlice";
+import { useTranslation } from "react-i18next";
 
 const ProfilePage: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
@@ -18,6 +19,7 @@ const ProfilePage: React.FC = () => {
     const accessToken = useSelector((state: RootState) => state.auth.access_token);
     const refreshToken = useSelector((state: RootState) => state.auth.refresh_token);
 
+    const { t } = useTranslation();
 
     const dispatch = useDispatch();
 
@@ -153,7 +155,7 @@ const ProfilePage: React.FC = () => {
         navigate("/login");
     };
     if (loading) {
-        return <div>Loading...</div>;
+        return <div>{t("loading")}</div>;
     }
 
     if (error) {
@@ -167,16 +169,16 @@ const ProfilePage: React.FC = () => {
                 <div className="mb-8">
                     <div className="flex justify-between items-center mb-4">
 
-                        <h1 className="text-2xl font-bold text-gray-800 mb-4">Profile</h1>
+                        <h1 className="text-2xl font-bold text-gray-800 mb-4">{t("profile_title")}</h1>
                         <button
                             onClick={handleLogOut}
                             className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                        >Log Out</button>
+                        > {t("logout_btn")} </button>
                     </div>
                     <div className="bg-gray-100 p-4 rounded-lg shadow space-y-4">
                         <div>
                             <label className="block text-gray-700 font-medium mb-2">
-                                First Name
+                                {t("order_first_name")}
                             </label>
                             <input
                                 type="text"
@@ -188,7 +190,7 @@ const ProfilePage: React.FC = () => {
                         </div>
                         <div>
                             <label className="block text-gray-700 font-medium mb-2">
-                                Last Name
+                                {t("order_last_name")}
                             </label>
                             <input
                                 type="text"
@@ -200,7 +202,7 @@ const ProfilePage: React.FC = () => {
                         </div>
                         <div>
                             <label className="block text-gray-700 font-medium mb-2">
-                                Email
+                                {t("order_email")}
                             </label>
                             <input
                                 type="email"
@@ -215,7 +217,7 @@ const ProfilePage: React.FC = () => {
                                 onClick={handleSaveChanges}
                                 className="mt-4 bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition"
                             >
-                                Save Changes
+                                {t("profile_save_btn")}
                             </button>
                         )}
                     </div>
@@ -223,9 +225,9 @@ const ProfilePage: React.FC = () => {
 
                 {/* Orders */}
                 <div>
-                    <h2 className="text-xl font-semibold mb-4">Your Orders</h2>
+                    <h2 className="text-xl font-semibold mb-4"> {t("profile_orders_title")} </h2>
                     {orders.length === 0 ? (
-                        <p>No orders found.</p>
+                        <p> {t("profile_no_order_titles")} </p>
                     ) : (
                         <div className="space-y-6">
                             {orders.map((order) => (
@@ -235,10 +237,10 @@ const ProfilePage: React.FC = () => {
                                 >
                                     <div className="mb-4">
                                         <p className="font-medium">
-                                            <strong>Order ID:</strong> {order.id}
+                                            <strong>{t("profile_order_id")}</strong> {order.id}
                                         </p>
                                         <p>
-                                            <strong>Status:</strong>{" "}
+                                            <strong>{t("profile_order_status")}</strong>{" "}
                                             <span
                                                 className={`px-2 py-1 rounded-full ${order.status === "delivered"
                                                     ? "bg-green-200 text-green-800"
@@ -251,14 +253,14 @@ const ProfilePage: React.FC = () => {
                                             </span>
                                         </p>
                                         <p>
-                                            <strong>Total:</strong> ${order.total_price.toFixed(2)}
+                                            <strong>{t("order_total_price")}</strong> ${order.total_price.toFixed(2)}
                                         </p>
                                         <p>
-                                            <strong>Date:</strong>{" "}
+                                            <strong> {t("profile_order_date")} </strong>{" "}
                                             {new Date(order.created_at).toLocaleDateString()}
                                         </p>
                                     </div>
-                                    <h3 className="font-semibold mb-2">Items</h3>
+                                    <h3 className="font-semibold mb-2"> {t("profile_order_items")} </h3>
                                     <ul className="space-y-2">
                                         {order.items.map((item, index) => (
                                             <li key={index} className="flex items-center gap-4">
@@ -278,16 +280,16 @@ const ProfilePage: React.FC = () => {
                                     </ul>
                                     <div className="mt-4">
                                         <p>
-                                            <strong>Delivery Address:</strong>{" "}
+                                            <strong> {t("profile_order_address")} </strong>{" "}
                                             {order.address}, {order.city}, {order.postal_code},{" "}
                                             {order.country}
                                         </p>
                                         <p>
-                                            <strong>Phone:</strong> {order.phone}
+                                            <strong> {t("profile_order_phone")} </strong> {order.phone}
                                         </p>
                                         {order.order_notes && (
                                             <p>
-                                                <strong>Notes:</strong> {order.order_notes}
+                                                <strong> {t("profile_order_notes")}</strong> {order.order_notes}
                                             </p>
                                         )}
                                     </div>

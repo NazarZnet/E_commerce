@@ -9,13 +9,14 @@ import PhoneInput from 'react-phone-number-input'
 import "./style.css"
 import { fetchProfile, refreshAccessToken } from "../../utils/api";
 import { setAuthData, updateTokens } from "../../redux/slices/authSlice";
+import { useTranslation } from "react-i18next";
 const OrderPage: React.FC = () => {
     const dispatch = useDispatch();
     const basket = useSelector((state: RootState) => state.basket);
     const countryOptions = useMemo(() => countryList().getData(), [])
     const accessToken = useSelector((state: RootState) => state.auth.access_token);
     const refreshToken = useSelector((state: RootState) => state.auth.refresh_token);
-
+    const { t } = useTranslation();
 
     const [form, setForm] = useState({
         email: "",
@@ -126,7 +127,7 @@ const OrderPage: React.FC = () => {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.log(errorData);
-                throw new Error(errorData.message || "Failed to create the order.");
+                throw new Error(t("order_error"));
             }
 
             const data = await response.json(); // Parse the response JSON
@@ -142,10 +143,11 @@ const OrderPage: React.FC = () => {
                 // Redirect the user to the Stripe Checkout URL
                 window.location.href = data.checkout_url;
             } else {
-                throw new Error("Checkout URL not provided.");
+                console.error("Checkout url not provided");
+                throw new Error(t("order_error"));
             }
         } catch (err: any) {
-            setError(err.message || "An error occurred.");
+            setError(err.message || t("order_error"));
         } finally {
             setLoading(false);
         }
@@ -156,13 +158,13 @@ const OrderPage: React.FC = () => {
             <div className="max-w-4xl m-auto">
 
 
-                <h1 className="text-2xl font-bold mb-4">Place Your Order</h1>
+                <h1 className="text-2xl font-bold mb-4">{t("order_title")}</h1>
 
                 {/* Basket Section */}
                 <div className="mb-6">
-                    <h2 className="text-xl font-semibold mb-2">Your Basket</h2>
+                    <h2 className="text-xl font-semibold mb-2"> {t("basket_title")} </h2>
                     {basket.items.length === 0 ? (
-                        <p>Your basket is empty.</p>
+                        <p> {t("empty_basket")} </p>
                     ) : (
                         <ul className="space-y-4">
                             {basket.items.map(({ product, quantity }) => (
@@ -176,7 +178,7 @@ const OrderPage: React.FC = () => {
                                         <div>
                                             <Link to={`/products/${product.slug}`} className="font-medium">{product.name}</Link>
                                             <p className="text-sm text-gray-500">
-                                                Price: ${product.price}
+                                                {t("price")} ${product.price}
                                             </p>
                                         </div>
                                     </div>
@@ -194,7 +196,7 @@ const OrderPage: React.FC = () => {
                                             onClick={() => handleRemove(product.id)}
                                             className="text-orange-500 hover:text-orange-700 transition"
                                         >
-                                            Remove
+                                            {t("remove_btn")}
                                         </button>
                                     </div>
                                 </li>
@@ -202,20 +204,20 @@ const OrderPage: React.FC = () => {
                         </ul>
                     )}
                     <div className="mt-4 text-right font-bold">
-                        Total Price: ${totalPrice.toFixed(2)}
+                        {t("order_total_price")} ${totalPrice.toFixed(2)}
                     </div>
                 </div>
 
                 {/* Order Form Section */}
                 <form onSubmit={handleSubmit}>
-                    <h2 className="text-xl font-semibold mb-2">Shipping Details</h2>
+                    <h2 className="text-xl font-semibold mb-2">{t("order_form_title")}</h2>
                     {error && <p className="text-red-500 mt-2">{error}</p>}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6">
                         <input
                             type="email"
                             name="email"
-                            placeholder="Email"
+                            placeholder={t("order_email")}
                             value={form.email}
                             onChange={handleInputChange}
                             className="border p-2 rounded w-full md:col-span-2"
@@ -224,7 +226,7 @@ const OrderPage: React.FC = () => {
                         <input
                             type="text"
                             name="first_name"
-                            placeholder="First Name"
+                            placeholder={t("order_first_name")}
                             value={form.first_name}
                             onChange={handleInputChange}
                             className="border p-2 rounded w-full"
@@ -233,7 +235,7 @@ const OrderPage: React.FC = () => {
                         <input
                             type="text"
                             name="last_name"
-                            placeholder="Last Name"
+                            placeholder={t("order_last_name")}
                             value={form.last_name}
                             onChange={handleInputChange}
                             className="border p-2 rounded w-full"
@@ -248,7 +250,7 @@ const OrderPage: React.FC = () => {
                             className="p-2 border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                         >
                             <option value="" disabled>
-                                Choose a country...
+                                {t("order_country")}
                             </option>
                             {countryOptions.map((country) => (
                                 <option key={country.value} value={country.value}>
@@ -257,7 +259,7 @@ const OrderPage: React.FC = () => {
                             ))}
                         </select>
                         <PhoneInput
-                            placeholder="Phone Number"
+                            placeholder={t("order_phone")}
                             name="phone"
                             value={form.phone}
                             onChange={(value) => setForm((prev) => ({ ...prev, phone: value }))}
@@ -270,7 +272,7 @@ const OrderPage: React.FC = () => {
                         <input
                             type="text"
                             name="city"
-                            placeholder="City"
+                            placeholder={t("order_city")}
                             value={form.city}
                             onChange={handleInputChange}
                             className="border p-2 rounded w-full"
@@ -279,7 +281,7 @@ const OrderPage: React.FC = () => {
                         <input
                             type="text"
                             name="postal_code"
-                            placeholder="Postal Code"
+                            placeholder={t("order_postal_code")}
                             value={form.postal_code}
                             onChange={handleInputChange}
                             className="border p-2 rounded w-full"
@@ -287,7 +289,7 @@ const OrderPage: React.FC = () => {
                         />
                         <textarea
                             name="address"
-                            placeholder="Address"
+                            placeholder={t("order_address")}
                             value={form.address}
                             onChange={handleInputChange}
                             className="border p-2 rounded w-full mt-4"
@@ -297,7 +299,7 @@ const OrderPage: React.FC = () => {
 
                         <textarea
                             name="order_notes"
-                            placeholder="Order Notes (optional)"
+                            placeholder={t("order_notes")}
                             value={form.order_notes}
                             onChange={handleInputChange}
                             className="border p-2 rounded w-full mt-4"
@@ -313,7 +315,7 @@ const OrderPage: React.FC = () => {
                         className="mt-4 bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition"
                         disabled={loading}
                     >
-                        {loading ? "Placing Order..." : "Place Order"}
+                        {loading ? t("order_btn_loading") : t("order_btn")}
                     </button>
                 </form>
             </div>
