@@ -9,6 +9,7 @@ import { setFilters } from "../redux/slices/filterSlice";
 import { Category } from "../interfaces/category";
 import { useTranslation } from "react-i18next";
 import LocaleSwitcher from "../i18n/LocaleSwitcher";
+import i18n from "../i18n/config";
 
 const Navigation: React.FC = () => {
   const [isBasketOpen, setIsBasketOpen] = useState(false);
@@ -24,13 +25,25 @@ const Navigation: React.FC = () => {
 
   useEffect(() => {
     // Fetch categories when the component mounts
-    const fetchCategories = async () => {
-      const fetchedCategories = await getCategories();
+    const fetchCategories = async (language: string) => {
+      const fetchedCategories = await getCategories(language);
       setCategories(fetchedCategories);
     };
 
-    fetchCategories();
-  }, []);
+    const handleLanguageChange = (language: string) => {
+      fetchCategories(language);
+    };
+
+    fetchCategories(i18n.language);
+
+    // Listen for language changes
+    i18n.on("languageChanged", handleLanguageChange);
+
+    return () => {
+      i18n.off("languageChanged", handleLanguageChange);
+    };
+
+  }, [i18n]);
 
   const handleRemove = (productId: number) => {
     dispatch(removeItem(productId));
@@ -120,9 +133,9 @@ const Navigation: React.FC = () => {
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <a href="#categories">{t("nav_categories")}</a>
+          <p >{t("nav_categories")}</p>
           {isHoveringCategories && (
-            <ul className="absolute top-full left-0 bg-black text-white shadow-md mt-2 rounded-lg w-48">
+            <ul className="absolute top-full left-0 bg-black text-white shadow-md mt-2 rounded-lg w-56">
               {categories.length > 0 ? (
                 categories.map((category, index) => (
                   <li
