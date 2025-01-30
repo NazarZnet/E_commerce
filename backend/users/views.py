@@ -10,6 +10,7 @@ from .models import User
 from .serializers import TempPasswordSerializer, UserSerializer, UserUpdateSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
+from django.utils.translation import activate
 
 
 class GenerateTempPasswordView(APIView):
@@ -77,6 +78,10 @@ class ProfileView(APIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
+        lang = request.GET.get("lang")  # Get the requested language from query params
+
+        if lang:
+            activate(lang)
 
         # Fetch user orders
         orders = Order.objects.filter(user=user).order_by("-created_at")

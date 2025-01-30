@@ -6,9 +6,9 @@ import { UpdateUserInfoPayload } from "../interfaces/user";
 const API_BASE_URL = '/api';
 
 // Fetch Featured Products
-export const getFeaturedProducts = async (): Promise<Product[]> => {
+export const getFeaturedProducts = async (language: string): Promise<Product[]> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/products?is_featured=true`, {
+        const response = await fetch(`${API_BASE_URL}/products?is_featured=true&lang=${language}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -29,9 +29,9 @@ export const getFeaturedProducts = async (): Promise<Product[]> => {
 };
 
 // Fetch Categories
-export const getCategories = async (): Promise<Category[]> => {
+export const getCategories = async (language: string): Promise<Category[]> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/categories/`, {
+        const response = await fetch(`${API_BASE_URL}/categories?lang=${language}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -54,10 +54,11 @@ export const getCategories = async (): Promise<Category[]> => {
 // Fetch Popular Products
 export const getPopularProducts = async (
     minRating: number = 4.0,
-    fallbackThreshold: number = 5
+    fallbackThreshold: number = 5,
+    language: string
 ): Promise<Product[]> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/products`, {
+        const response = await fetch(`${API_BASE_URL}/products?lang=${language}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -92,9 +93,9 @@ export const getPopularProducts = async (
     }
 };
 // Fetch Product Details
-export const getProductDetails = async (slug: string): Promise<Product | null> => {
+export const getProductDetails = async (slug: string, language: string): Promise<Product | null> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/products/${slug}`, {
+        const response = await fetch(`${API_BASE_URL}/products/${slug}?lang=${language}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -182,10 +183,10 @@ export const refreshAccessToken = async (refreshToken: string | null): Promise<a
 };
 
 // Fetch profile data
-export const fetchProfile = async (accessToken: string | null): Promise<any> => {
+export const fetchProfile = async (accessToken: string | null, language: string): Promise<any> => {
     try {
 
-        const response = await axios.get(`${API_BASE_URL}/profile/`, {
+        const response = await axios.get(`${API_BASE_URL}/profile/?lang=${language}`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },

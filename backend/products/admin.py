@@ -19,6 +19,11 @@ from unfold.contrib.import_export.forms import (
     ExportForm,
     ImportForm,
 )
+from modeltranslation.admin import (
+    TranslationAdmin,
+    TranslationTabularInline,
+    TabbedTranslationAdmin,
+)
 
 
 class CustomSliderNumericFilter(SliderNumericFilter):
@@ -46,7 +51,7 @@ class ProductGalleryInline(TabularInline):
     fields = ("image", "caption")  # Fields to display in the inline form
 
 
-class ProductCharacteristicInline(TabularInline):
+class ProductCharacteristicInline(TabularInline, TranslationTabularInline):
     model = ProductCharacteristic
     extra = 1
 
@@ -63,7 +68,7 @@ class ProductCharacteristicInline(TabularInline):
 
 
 @admin.register(Category)
-class CategoryAdmin(ModelAdmin, ImportExportModelAdmin):
+class CategoryAdmin(ModelAdmin, TabbedTranslationAdmin, ImportExportModelAdmin):
     import_form_class = ImportForm
     export_form_class = ExportForm
     list_display = ("name", "slug", "created_at", "updated_at")
@@ -74,7 +79,7 @@ class CategoryAdmin(ModelAdmin, ImportExportModelAdmin):
 
 
 @admin.register(Product)
-class ProductAdmin(ModelAdmin, ImportExportModelAdmin):
+class ProductAdmin(ModelAdmin, TranslationAdmin, ImportExportModelAdmin):
     """
     Admin configuration for the Product model.
     """
@@ -168,7 +173,10 @@ class ProductGalleryAdmin(ModelAdmin):
 
 
 @admin.register(ProductCharacteristic)
-class ProductCharacteristicAdmin(ModelAdmin):
+class ProductCharacteristicAdmin(
+    ModelAdmin,
+    TranslationAdmin,
+):
     """
     Admin configuration for the ProductCharacteristic model.
     """
@@ -185,6 +193,9 @@ class ProductCharacteristicAdmin(ModelAdmin):
 
 
 @admin.register(CharacteristicType)
-class CharacteristicTypeAdmin(ModelAdmin):
+class CharacteristicTypeAdmin(
+    ModelAdmin,
+    TabbedTranslationAdmin,
+):
     list_display = ("name", "data_type", "suffix")
     filter_horizontal = ("categories",)  # Easier UI for many-to-many relationships

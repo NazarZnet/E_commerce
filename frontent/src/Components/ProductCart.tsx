@@ -93,7 +93,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
             {/* Product Details */}
             <div className="h-[30%] p-2 flex flex-col justify-between">
-                <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-800 cursor-pointer" onClick={() => goToDetails(product.slug)}>{product.name}</h3>
                 {renderStars()}
                 <div className="flex items-center justify-between mt-1">
                     {product.discounted_price !== product.price ? (

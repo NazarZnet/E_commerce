@@ -6,7 +6,7 @@ import HttpApi from "i18next-http-backend";
 
 export const supportedLngs = {
     en: "English",
-    ch: "Čeština",
+    cs: "Čeština",
 };
 
 i18n

@@ -7,31 +7,32 @@ import Filters from "../../Components/Filters";
 import ProductCard from "../../Components/ProductCart";
 import { Category } from "../../interfaces/category";
 import { RootState } from "../../redux/store";
+import i18n from "../../i18n/config";
 
 const ShopPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [maxProductPrice, setMaxProductPrice] = useState<number | null>(null);
-  const [forceRender, setForceRender] = useState(0);
+
 
   const filters = useSelector((state: RootState) => state.filters);
 
 
   useEffect(() => {
     // Fetch categories and products
-    const fetchCategories = async () => {
+    const fetchCategories = async (language: string) => {
       try {
-        const data = await getCategories();
+        const data = await getCategories(language);
         setCategories(data);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
     };
 
-    const fetchProducts = async () => {
+    const fetchProducts = async (language: string) => {
       try {
-        const response = await fetch("/api/products");
+        const response = await fetch(`/api/products?lang=${language}`);
         if (response.ok) {
           const data = await response.json();
           setProducts(data.results);
@@ -50,9 +51,22 @@ const ShopPage: React.FC = () => {
       }
     };
 
-    fetchCategories();
-    fetchProducts();
-  }, []);
+    const handleLanguageChange = (language: string) => {
+      fetchCategories(language);
+      fetchProducts(language);
+    };
+
+    fetchCategories(i18n.language);
+    fetchProducts(i18n.language);
+
+    // Listen for language changes
+    i18n.on("languageChanged", handleLanguageChange);
+
+    return () => {
+      i18n.off("languageChanged", handleLanguageChange);
+    };
+
+  }, [i18n]);
 
   // Apply filters to products
   useEffect(() => {
@@ -67,14 +81,14 @@ const ShopPage: React.FC = () => {
     }
 
     // Filter by price range
-    if (filters.minPrice !== null) {
+    if (filters.minPrice ?? false) {
       updatedProducts = updatedProducts.filter(
-        (product) => product.discounted_price >= filters.minPrice
+        (product) => product.discounted_price >= (filters.minPrice as number)
       );
     }
-    if (filters.maxPrice !== null) {
+    if (filters.maxPrice ?? false) {
       updatedProducts = updatedProducts.filter(
-        (product) => product.discounted_price <= filters.maxPrice
+        (product) => product.discounted_price <= (filters.maxPrice as number)
       );
     }
 
@@ -118,9 +132,7 @@ const ShopPage: React.FC = () => {
 
     setFilteredProducts(updatedProducts);
   }, [filters, products]);
-  useEffect(() => {
-    setForceRender((prev) => prev + 1);
-  }, [filters]);
+
 
   return (
     <div className="bg-gray-100 min-h-screen p-4">

@@ -10,6 +10,7 @@ import { RootState } from "../../redux/store";
 import CommentsList from "../../Components/CommentsList";
 import { setFilters } from "../../redux/slices/filterSlice";
 import { useTranslation } from "react-i18next";
+import i18n from "../../i18n/config";
 
 const ProductDetailsPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -29,9 +30,9 @@ const ProductDetailsPage: React.FC = () => {
   );
   useEffect(() => {
     // Fetch product details by slug
-    const fetchProducts = async () => {
+    const fetchProducts = async (language: string) => {
       if (slug) {
-        const result = await getProductDetails(slug);
+        const result = await getProductDetails(slug, language);
         console.log("Product Details:", result);
         setProduct(result);
 
@@ -40,9 +41,18 @@ const ProductDetailsPage: React.FC = () => {
         setSimilarProducts(similar);
       }
     };
+    const handleLanguageChange = (language: string) => {
+      fetchProducts(language);
+    };
 
-    fetchProducts();
-  }, [slug]);
+    fetchProducts(i18n.language);
+
+    i18n.on("languageChanged", handleLanguageChange);
+
+    return () => {
+      i18n.off("languageChanged", handleLanguageChange);
+    };
+  }, [slug, i18n]);
 
   if (!product) {
     return <div>Loading product details...</div>;

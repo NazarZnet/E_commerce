@@ -8,6 +8,7 @@ import { Product } from "../../interfaces/product";
 import { Category } from "../../interfaces/category";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import i18n from "../../i18n/config";
 
 
 export default function Main() {
@@ -20,28 +21,39 @@ export default function Main() {
     const { t } = useTranslation();
 
     useEffect(() => {
-        async function getProducts() {
-            const result = await getFeaturedProducts();
+        async function getProducts(language: string) {
+            const result = await getFeaturedProducts(language);
             console.log("FeatureProducts:", result);
             setFeaturedProducts(result);
         }
 
-        async function getCategoryList() {
-            const result = await getCategories();
+        async function getCategoryList(language: string) {
+            const result = await getCategories(language);
             console.log("Categories:", result);
             setCategories(result);
         }
 
-        async function getPopular() {
-            const result = await getPopularProducts(1.0, 2);
+        async function getPopular(language: string) {
+            const result = await getPopularProducts(1.0, 5, language);
             console.log("PopularProducts:", result);
             setPopular(result);
         }
+        const handleLanguageChange = (language: string) => {
+            getProducts(language);
+            getCategoryList(language);
+            getPopular(language);
+        };
 
-        getProducts();
-        getCategoryList();
-        getPopular();
-    }, []);
+        getProducts(i18n.language);
+        getCategoryList(i18n.language);
+        getPopular(i18n.language);
+
+        i18n.on("languageChanged", handleLanguageChange);
+
+        return () => {
+            i18n.off("languageChanged", handleLanguageChange);
+        };
+    }, [i18n]);
     const handleShowMorePopular = () => {
         navigate("/products");
         window.scrollTo(0, 0);

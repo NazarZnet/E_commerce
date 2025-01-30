@@ -12,12 +12,19 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .pagination import CustomPagination
 from rest_framework.exceptions import NotFound
+from django.utils.translation import activate
 
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     lookup_field = "slug"
+
+    def get_queryset(self):
+        lang = self.request.query_params.get("lang")
+        if lang:
+            activate(lang)
+        return super().get_queryset()
 
     def get_serializer_context(self):
         """
@@ -66,6 +73,9 @@ class ProductViewSet(ModelViewSet):
         """
         Optionally filter products by category slug or featured flag.
         """
+        lang = self.request.query_params.get("lang")
+        if lang:
+            activate(lang)
         queryset = super().get_queryset()
 
         # Filter by category slug

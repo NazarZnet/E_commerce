@@ -9,12 +9,19 @@ from .models import (
     ProductCharacteristic,
     CharacteristicType,
 )
+from django.utils.translation import get_language
 
 
 class CharacteristicTypeSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
     class Meta:
         model = CharacteristicType
         fields = ["id", "name", "data_type", "suffix"]
+
+    def get_name(self, obj):
+        language = get_language()
+        return getattr(obj, f"name_{language}", obj.name)
 
 
 class ProductCommentSerializer(serializers.ModelSerializer):
@@ -50,6 +57,8 @@ class ProductCharacteristicSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
     gallery = ProductGallerySerializer(many=True, read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     category = serializers.SerializerMethodField()
@@ -78,6 +87,14 @@ class ProductSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
+    def get_name(self, obj):
+        language = get_language()
+        return getattr(obj, f"name_{language}", obj.name)
+
+    def get_description(self, obj):
+        language = get_language()
+        return getattr(obj, f"description_{language}", obj.description)
+
     def get_category(self, obj):
         """
         Return only the name and slug of the category.
@@ -99,6 +116,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
     products = serializers.SerializerMethodField()
     characteristics = serializers.SerializerMethodField()
 
@@ -114,6 +132,10 @@ class CategorySerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def get_name(self, obj):
+        language = get_language()
+        return getattr(obj, f"name_{language}", obj.name)
 
     def get_products(self, obj):
         """

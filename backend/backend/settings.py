@@ -20,13 +20,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+USE_I18N = True
 # Application definition
 
 INSTALLED_APPS = [
+    # custom
     "unfold",
     "unfold.contrib.filters",
     "unfold.contrib.import_export",
+    "modeltranslation",
+    # default
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -208,8 +211,22 @@ UNFOLD = {
             "950": "67 20 7",
         },
     },
+    "EXTENSIONS": {
+        "modeltranslation": {
+            "flags": {
+                "en": "🇺🇸",
+                "cs": "🇨🇿",
+            },
+        },
+    },
 }
 
+LANGUAGES = (
+    ("en", "English"),
+    ("cs", "Czech"),
+)
+MODELTRANSLATION_DEFAULT_LANGUAGE = "en"
+MODELTRANSLATION_FALLBACK_LANGUAGES = ("en", "cs")
 # Payment
 STRIPE_PUBLISHABLE_KEY = "pk_test_51QkXPeP4nZmouXJpX8eBtbRiPrYgJQ23nzAW11wWH18H9YcXzq01SxOPYGZX4inF7FE9s5slPQlsOtKwhthbQauY00Uqxpl3nR"
 STRIPE_SECRET_KEY = "sk_test_51QkXPeP4nZmouXJp5LMSHQu2OaXP8TvUY8gvdryvm2c64iICKkxgo2qReDApcPBA1YvsllXucFX9EJr7L4tcv4TG00kc6wE9zF"

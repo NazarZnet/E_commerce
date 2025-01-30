@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { clearTokens, fetchProfile, refreshAccessToken, updateUserInfo } from "../../utils/api";
-import { useNavigate } from "react-router-dom";
+import { fetchProfile, refreshAccessToken, updateUserInfo } from "../../utils/api";
+import { Link, useNavigate } from "react-router-dom";
 import { User } from "../../interfaces/user";
 import { Order } from "../../interfaces/order";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { clearAuthData, setAuthData, updateTokens } from "../../redux/slices/authSlice";
 import { useTranslation } from "react-i18next";
+import i18n from "../../i18n/config";
 
 const ProfilePage: React.FC = () => {
-    const [user, setUser] = useState<User | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ const ProfilePage: React.FC = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        const loadProfile = async () => {
+        const loadProfile = async (language: string) => {
             setLoading(true);
 
             try {
@@ -35,8 +35,8 @@ const ProfilePage: React.FC = () => {
                 }
 
                 // Attempt to fetch the profile
-                const data = await fetchProfile(accessToken);
-                setUser(data.user);
+                const data = await fetchProfile(accessToken, language);
+
                 setEditedUser(data.user); // Set editable copy of user data
                 setOrders(data.orders);
             } catch (err: any) {
@@ -56,8 +56,8 @@ const ProfilePage: React.FC = () => {
                         );
 
                         // Retry fetching the profile with the new token
-                        const retryData = await fetchProfile(refreshData.access_token);
-                        setUser(retryData.user);
+                        const retryData = await fetchProfile(refreshData.access_token, language);
+
                         setEditedUser(retryData.user);
                         setOrders(retryData.orders);
                     } catch (refreshError) {
@@ -73,9 +73,19 @@ const ProfilePage: React.FC = () => {
                 setLoading(false);
             }
         };
+        const handleLanguageChange = (language: string) => {
+            loadProfile(language);
+        };
 
-        loadProfile();
-    }, [accessToken, refreshToken, navigate, dispatch]);
+
+        loadProfile(i18n.language);
+
+        i18n.on("languageChanged", handleLanguageChange);
+
+        return () => {
+            i18n.off("languageChanged", handleLanguageChange);
+        };
+    }, [accessToken, refreshToken, navigate, dispatch, i18n]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -95,7 +105,7 @@ const ProfilePage: React.FC = () => {
                 email: editedUser.email,
             }, accessToken);
 
-            setUser(data.user);
+
             setIsEditing(false);
             dispatch(
                 setAuthData({
@@ -126,7 +136,7 @@ const ProfilePage: React.FC = () => {
                         email: editedUser.email,
                     }, accessToken);
 
-                    setUser(data.user);
+
                     setIsEditing(false);
                     dispatch(
                         setAuthData({
@@ -270,7 +280,7 @@ const ProfilePage: React.FC = () => {
                                                     className="w-16 h-16 object-cover rounded-md shadow"
                                                 />
                                                 <div className="flex-grow">
-                                                    <p className="font-medium">{item.product.name}</p>
+                                                    <Link to={`/products/${item.product.slug}`} className="font-medium">{item.product.name}</Link>
                                                     <p className="text-sm text-gray-500">
                                                         {item.quantity} x ${item.product.discounted_price.toFixed(2)}
                                                     </p>
