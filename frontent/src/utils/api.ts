@@ -291,3 +291,25 @@ export const saveComment = async (data: SaveCommentData, accessToken: string | n
 
     }
 };
+
+export const subscribeUser = async (email: string): Promise<string> => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/subscribe/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData?.email?.[0] || "Failed to subscribe");
+        }
+
+        const data = await response.json();
+        return data.message; // "Successfully subscribed!"
+    } catch (error: any) {
+        throw new Error(error.message);
+    }
+};

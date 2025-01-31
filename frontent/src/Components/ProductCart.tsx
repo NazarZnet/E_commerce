@@ -99,10 +99,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     {product.discounted_price !== product.price ? (
                         <>
                             <span className="text-gray-400 line-through">
-                                ${product.price}
+                                €{product.price}
                             </span>
                             <span className="text-orange-500 font-bold">
-                                ${product.discounted_price}
+                                €{product.discounted_price}
                             </span>
                         </>
                     ) : (

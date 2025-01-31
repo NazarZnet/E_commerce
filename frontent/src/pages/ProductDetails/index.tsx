@@ -163,15 +163,15 @@ const ProductDetailsPage: React.FC = () => {
             {product.discounted_price !== product.price ? (
               <>
                 <span className="text-orange-500 font-bold text-xl">
-                  ${product.discounted_price}
+                  €{product.discounted_price}
                 </span>
                 <span className="text-gray-400 line-through">
-                  ${product.price}
+                  €{product.price}
                 </span>
               </>
             ) : (
               <span className="text-gray-500 font-bold text-xl">
-                ${product.price}
+                €{product.price}
               </span>
             )}
           </div>

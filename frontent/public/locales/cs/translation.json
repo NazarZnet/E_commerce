@@ -85,5 +85,7 @@
     "stay_updated": "Buďte v obraze",
     "stay_updated_description": "Přihlaste se k odběru našeho newsletteru a získejte nejnovější informace o novinkách a exkluzivních nabídkách.",
     "subscribe_btn": "Přihlásit se k odběru",
-    "subscribe_btn_loading": "Přihlašování..."
+    "subscribe_btn_loading": "Přihlašování...",
+    "subscription_success": "Úspěšně přihlášen k odběru!",
+    "subscription_failed": "Něco se pokazilo. Možná už jste odběratel. Zkuste prosím jiný e-mail."
 }

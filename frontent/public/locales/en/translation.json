@@ -85,5 +85,7 @@
     "stay_updated": "Stay Updated",
     "stay_updated_description": "Sign up for our newsletter to get the latest updates on new arrivals and exclusive offers.",
     "subscribe_btn": "Subscribe",
-    "subscribe_btn_loading": "Subscribing..."
+    "subscribe_btn_loading": "Subscribing...",
+    "subscription_success": "Subscribed successfully!",
+    "subscription_failed": "Something went wrong. Maybe you already subscibed. Try another email please."
 }
