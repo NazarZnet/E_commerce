@@ -1,19 +1,24 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/store";
 import { removeItem, updateQuantity } from "../../redux/slices/basketSlice";
 import { Link } from "react-router-dom";
-import countryList from 'react-select-country-list'
+
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 import "./style.css"
 import { fetchProfile, refreshAccessToken } from "../../utils/api";
 import { setAuthData, updateTokens } from "../../redux/slices/authSlice";
 import { useTranslation } from "react-i18next";
+import i18n from "../../i18n/config";
 const OrderPage: React.FC = () => {
     const dispatch = useDispatch();
     const basket = useSelector((state: RootState) => state.basket);
-    const countryOptions = useMemo(() => countryList().getData(), [])
+    const countryOptions = [
+        { value: "CZ", label: "Czech Republic" },
+        { value: "PL", label: "Poland" },
+        { value: "AT", label: "Austria" },
+    ];
     const accessToken = useSelector((state: RootState) => state.auth.access_token);
     const refreshToken = useSelector((state: RootState) => state.auth.refresh_token);
     const { t } = useTranslation();
@@ -37,7 +42,7 @@ const OrderPage: React.FC = () => {
     useEffect(() => {
         const loadProfile = async () => {
             try {
-                const data = await fetchProfile(accessToken); // Fetch profile data
+                const data = await fetchProfile(accessToken, i18n.language); // Fetch profile data
                 const user = data.user;
                 setForm((prev) => ({ ...prev, ["email"]: user.email, ["first_name"]: user.first_name, ["last_name"]: user.last_name }));
             } catch (err: any) {
@@ -57,7 +62,7 @@ const OrderPage: React.FC = () => {
                         );
 
                         // Retry fetching the profile with the new token
-                        const data = await fetchProfile(refreshData.access_token);
+                        const data = await fetchProfile(refreshData.access_token, i18n.language);
                         const user = data.user;
                         setForm((prev) => ({ ...prev, ["email"]: user.email, ["first_name"]: user.first_name, ["last_name"]: user.last_name }));
                     } catch (refreshError) {
