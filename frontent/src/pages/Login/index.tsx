@@ -4,6 +4,10 @@ import { generateTempPassword, verifyTempPassword } from "../../utils/api";
 import { useDispatch } from "react-redux";
 import { setAuthData } from "../../redux/slices/authSlice";
 import { useTranslation } from "react-i18next";
+
+import ReCAPTCHA from 'react-google-recaptcha';
+import useRecaptcha from "../../Components/Recaptcha";
+
 const LoginPage: React.FC = () => {
     const [step, setStep] = useState<"email" | "verify">("email");
     const [form, setForm] = useState({ email: "", temp_password: "" });
@@ -12,6 +16,7 @@ const LoginPage: React.FC = () => {
     const [timer, setTimer] = useState(600); // 10 minutes in seconds
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const { capchaToken, recaptchaRef, handleRecaptcha } = useRecaptcha();
 
     const { t } = useTranslation();
     useEffect(() => {
@@ -49,12 +54,18 @@ const LoginPage: React.FC = () => {
         setLoading(true);
 
         try {
-            await generateTempPassword(form.email); // Use API call function
+            await generateTempPassword(form.email, capchaToken); // Use API call function
             setStep("verify");
             setTimer(600); // Reset the timer to 10 minutes
+            // Reset captcha after submission
+            recaptchaRef.current?.reset();
         } catch (err: any) {
             console.error("Failed to generate temp password", err);
             setError(t("auth_error"));
+            handleRecaptcha('');
+            if (recaptchaRef.current) {
+                recaptchaRef.current.reset();
+            }
         } finally {
             setLoading(false);
         }
@@ -81,6 +92,7 @@ const LoginPage: React.FC = () => {
                     user: data.user,
                 })
             );
+
             navigate("/profile");
         } catch (err: any) {
             console.error("Failed to verify temp password", err);
@@ -122,7 +134,16 @@ const LoginPage: React.FC = () => {
                                 placeholder={t("auth_form_email_placeholder")}
                                 required
                             />
+                            <ReCAPTCHA
+                                ref={recaptchaRef}
+                                sitekey="6LcwaswqAAAAAMCSGK9B6mT5Cmt32PUnsOw_X1wF"
+                                onChange={handleRecaptcha}
+                                className="mt-4 "
+                            />
                         </div>
+                        <p className="text-gray-500 text-sm text-center">
+                            By signing up, you agree to our Terms of Service and Privacy Policy
+                        </p>
                         <button
                             type="submit"
                             className="mt-4 w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition"

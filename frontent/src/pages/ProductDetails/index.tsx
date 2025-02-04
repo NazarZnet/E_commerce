@@ -11,6 +11,7 @@ import CommentsList from "../../Components/CommentsList";
 import { setFilters } from "../../redux/slices/filterSlice";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n/config";
+import Loader from "../../Components/Loader";
 
 const ProductDetailsPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -29,16 +30,25 @@ const ProductDetailsPage: React.FC = () => {
     state.basket.items.some((item) => item.product.id === product?.id)
   );
   useEffect(() => {
-    // Fetch product details by slug
     const fetchProducts = async (language: string) => {
-      if (slug) {
-        const result = await getProductDetails(slug, language);
-        console.log("Product Details:", result);
-        setProduct(result);
+      if (!slug) return;
 
-        const similar = await getSimilarProducts(slug);
-        console.log("Similar Products:", similar);
-        setSimilarProducts(similar);
+
+
+      try {
+        // Fetch product details and similar products concurrently
+        const [productDetails, similarProducts] = await Promise.all([
+          getProductDetails(slug, language),
+          getSimilarProducts(slug),
+        ]);
+
+        console.log("Product Details:", productDetails);
+        setProduct(productDetails);
+
+        console.log("Similar Products:", similarProducts);
+        setSimilarProducts(similarProducts);
+      } catch (error) {
+        console.error("Error fetching product details or similar products:", error);
       }
     };
     const handleLanguageChange = (language: string) => {
@@ -55,7 +65,7 @@ const ProductDetailsPage: React.FC = () => {
   }, [slug, i18n]);
 
   if (!product) {
-    return <div>Loading product details...</div>;
+    return <div><Loader /></div>;
   }
 
   const renderStars = () => {
@@ -218,10 +228,24 @@ const ProductDetailsPage: React.FC = () => {
 
           {/* Actions */}
           <div className="flex gap-4">
-            <button onClick={handleAddToBasket} className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition">
+            <button
+              onClick={handleAddToBasket}
+              disabled={product.stock <= 0}
+              className={`py-2 px-6 rounded-lg transition ${product.stock <= 0
+                ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                : "bg-orange-500 text-white hover:bg-orange-600"
+                }`}
+            >
               {t("add_to_basket")}
             </button>
-            <button onClick={handleBuyNow} className="bg-gray-800 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition">
+            <button
+              onClick={handleBuyNow}
+              disabled={product.stock <= 0}
+              className={`py-2 px-6 rounded-lg transition ${product.stock <= 0
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-gray-800 text-white hover:bg-gray-700"
+                }`}
+            >
               {t("buy_now")}
             </button>
           </div>

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useTranslation } from "react-i18next";
 
-import 'swiper/css';
+import "swiper/swiper-bundle.css";
 
 interface FeaturedProductsProps {
     products: Product[];

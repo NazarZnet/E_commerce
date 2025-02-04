@@ -62,7 +62,7 @@ const Navigation: React.FC = () => {
     navigate("/order");
     window.scrollTo(0, 0);
   };
-  let hoverTimeout: number;
+  let hoverTimeout: NodeJS.Timeout;
 
   const handleMouseEnter = () => {
     clearTimeout(hoverTimeout);
@@ -246,7 +246,7 @@ const Navigation: React.FC = () => {
                       />
                       <div className="flex-1">
                         <Link to={`products/${product.slug}`} className="font-bold text-gray-800">{product.name}</Link>
-                        <p className="text-sm text-gray-500"> {t("price")} ${product.discounted_price}</p>
+                        <p className="text-sm text-gray-500"> {t("price")} €{product.discounted_price}</p>
                         <div className="flex items-center mt-2">
                           <input
                             type="number"

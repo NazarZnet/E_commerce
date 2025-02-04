@@ -5,6 +5,7 @@ import OrderPage from "./pages/Order";
 import LoginPage from "./pages/Login";
 import ProfilePage from "./pages/Profile";
 import OrderStatusPage from "./pages/OrderStatus";
+import HelpCenter from "./pages/Help";
 
 const MainPage = lazy(() => import("./pages/Main"));
 const ShopPage = lazy(() => import("./pages/Shop"));
@@ -22,6 +23,8 @@ function App() {
             <Route path="order/finished" element={<OrderStatusPage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="help" element={<HelpCenter />} />
+
 
           </Route>
         </Routes>

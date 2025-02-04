@@ -9,6 +9,7 @@ import { Category } from "../../interfaces/category";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n/config";
+import Loader from "../../Components/Loader";
 
 
 export default function Main() {
@@ -17,36 +18,37 @@ export default function Main() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [popular, setPopular] = useState<Product[]>([]);
     const navigate = useNavigate();
-
+    const [loading, setLoading] = useState(true);
     const { t } = useTranslation();
 
     useEffect(() => {
-        async function getProducts(language: string) {
-            const result = await getFeaturedProducts(language);
-            console.log("FeatureProducts:", result);
-            setFeaturedProducts(result);
-        }
+        async function fetchData(language: string) {
+            setLoading(true);
+            try {
+                const [featuredProducts, categories, popularProducts] = await Promise.all([
+                    getFeaturedProducts(language),
+                    getCategories(language),
+                    getPopularProducts(1.0, 5, language)
+                ]);
 
-        async function getCategoryList(language: string) {
-            const result = await getCategories(language);
-            console.log("Categories:", result);
-            setCategories(result);
-        }
+                console.log("FeatureProducts:", featuredProducts);
+                console.log("Categories:", categories);
+                console.log("PopularProducts:", popularProducts);
 
-        async function getPopular(language: string) {
-            const result = await getPopularProducts(1.0, 5, language);
-            console.log("PopularProducts:", result);
-            setPopular(result);
+                setFeaturedProducts(featuredProducts);
+                setCategories(categories);
+                setPopular(popularProducts);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
         }
         const handleLanguageChange = (language: string) => {
-            getProducts(language);
-            getCategoryList(language);
-            getPopular(language);
+            fetchData(language)
         };
 
-        getProducts(i18n.language);
-        getCategoryList(i18n.language);
-        getPopular(i18n.language);
+        fetchData(i18n.language)
 
         i18n.on("languageChanged", handleLanguageChange);
 
@@ -57,6 +59,9 @@ export default function Main() {
     const handleShowMorePopular = () => {
         navigate("/products");
         window.scrollTo(0, 0);
+    }
+    if (loading) {
+        return <div><Loader /></div>
     }
 
 
@@ -89,12 +94,6 @@ export default function Main() {
                             className="bg-orange-500 text-white py-3 px-6 rounded-lg text-lg hover:bg-orange-600 transition"
                         >
                             {t("shop_now")}
-                        </a>
-                        <a
-                            href="#learn-more"
-                            className="bg-transparent border border-white py-3 px-6 rounded-lg text-lg hover:bg-white hover:text-gray-900 transition"
-                        >
-                            {t("learn_more")}
                         </a>
                     </div>
                 </div>

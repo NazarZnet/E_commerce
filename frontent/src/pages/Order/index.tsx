@@ -5,9 +5,11 @@ import { removeItem, updateQuantity } from "../../redux/slices/basketSlice";
 import { Link } from "react-router-dom";
 
 import 'react-phone-number-input/style.css'
-import PhoneInput from 'react-phone-number-input'
+import PhoneInput from "react-phone-number-input"
+import { CountryCode } from "libphonenumber-js";
+
 import "./style.css"
-import { fetchProfile, refreshAccessToken } from "../../utils/api";
+import { createOrder, fetchProfile, refreshAccessToken } from "../../utils/api";
 import { setAuthData, updateTokens } from "../../redux/slices/authSlice";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n/config";
@@ -88,10 +90,13 @@ const OrderPage: React.FC = () => {
         0
     );
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    ) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
+
 
     const handleRemove = (productId: number) => {
         dispatch(removeItem(productId));
@@ -121,21 +126,9 @@ const OrderPage: React.FC = () => {
         };
 
         try {
-            const response = await fetch("/api/orders/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(orderData),
-            });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.log(errorData);
-                throw new Error(t("order_error"));
-            }
 
-            const data = await response.json(); // Parse the response JSON
+            const data = await createOrder(orderData);
             console.log("Payment data:", data);
             dispatch(
                 setAuthData({
@@ -152,7 +145,8 @@ const OrderPage: React.FC = () => {
                 throw new Error(t("order_error"));
             }
         } catch (err: any) {
-            setError(err.message || t("order_error"));
+            console.error("Failed to create order:", err);
+            setError(t("order_error"));
         } finally {
             setLoading(false);
         }
@@ -183,7 +177,7 @@ const OrderPage: React.FC = () => {
                                         <div>
                                             <Link to={`/products/${product.slug}`} className="font-medium">{product.name}</Link>
                                             <p className="text-sm text-gray-500">
-                                                {t("price")} ${product.price}
+                                                {t("price")} €{product.discounted_price}
                                             </p>
                                         </div>
                                     </div>
@@ -209,7 +203,7 @@ const OrderPage: React.FC = () => {
                         </ul>
                     )}
                     <div className="mt-4 text-right font-bold">
-                        {t("order_total_price")} ${totalPrice.toFixed(2)}
+                        {t("order_total_price")} €{totalPrice.toFixed(2)}
                     </div>
                 </div>
 
@@ -267,11 +261,17 @@ const OrderPage: React.FC = () => {
                             placeholder={t("order_phone")}
                             name="phone"
                             value={form.phone}
-                            onChange={(value) => setForm((prev) => ({ ...prev, phone: value }))}
+                            onChange={(value: string | undefined) =>
+                                setForm((prev) => ({ ...prev, phone: value || "" }))
+                            }
+
                             rules={{ required: true }}
                             className="custom-selector"
-                            defaultCountry={form.country.length > 0 ? form.country : undefined}
+                            defaultCountry={
+                                (form.country.length > 0 ? (form.country as CountryCode) : undefined)
+                            }
                         />
+
 
 
                         <input

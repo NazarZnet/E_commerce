@@ -40,19 +40,23 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
       const relevantCharacteristics = new Set(
         currentCategory.characteristics.map((char) => char.name)
       );
+      const characteristics = savedFilters.characteristics || {};
 
-      const filteredCharacteristics = Object.keys(savedFilters.characteristics)
+
+      const filteredCharacteristics = Object.keys(characteristics)
         .filter((key) => relevantCharacteristics.has(key))
         .reduce((acc, key) => {
-          acc[key] = savedFilters.characteristics[key];
+          acc[key] = characteristics[key];
           return acc;
-        }, {} as typeof savedFilters.characteristics);
+        }, {} as Record<string, string | number | boolean | { min?: number; max?: number }>);
+
 
       const newCharacteristicFilters = { ...filteredCharacteristics };
 
       currentCategory.characteristics.forEach((characteristic) => {
         if (!(characteristic.name in newCharacteristicFilters)) {
-          if (characteristic.data_type === "integer") {
+          if (characteristic.data_type === "integer" || characteristic.data_type === "float") {
+
             const maxCharacteristicValue = categories
               .flatMap((category) => category.products)
               .flatMap((product) => product.characteristics)
@@ -263,7 +267,7 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
                     }
                     onChange={(e) =>
                       handleCharacteristicChange(characteristic, {
-                        ...(characteristicFilters[characteristic.name] || {}),
+                        ...(characteristicFilters[characteristic.name] as object),
                         min: Number(e.target.value),
                       })
                     }
@@ -278,7 +282,7 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
                     }
                     onChange={(e) =>
                       handleCharacteristicChange(characteristic, {
-                        ...(characteristicFilters[characteristic.name] || {}),
+                        ...(characteristicFilters[characteristic.name] as object),
                         max: Number(e.target.value),
                       })
                     }
@@ -327,10 +331,11 @@ const Filters: React.FC<FiltersProps> = ({ categories, maxProductPrice }) => {
                       <input
                         type="checkbox"
                         checked={
-                          (characteristicFilters[characteristic.name] || "")
-                            .split(",")
-                            .includes(value)
+                          typeof characteristicFilters[characteristic.name] === "string"
+                            ? (characteristicFilters[characteristic.name] as string).split(",").includes(value)
+                            : false
                         }
+
                         onChange={() =>
                           handleCheckboxChange(characteristic, value)
                         }

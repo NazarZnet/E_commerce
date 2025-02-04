@@ -30,13 +30,17 @@ class Newsletter(models.Model):
             return "No subscribers found."
 
         email_html = render_to_string(
-            "email/newsletter.html", {"message": self.message}
+            "email/newsletter.html",
+            {
+                "message": self.message,
+                "logo_url": f"{settings.SITE_URL}/static/logo.png",
+                "help_url": f"{settings.FRONTEND_SITE_URL}/help",
+            },
         )
 
         send_mail(
             subject=self.subject,
             message="Your email client does not support HTML emails.",
-            logo_url=f"{settings.SITE_URL}/static/logo.png",
             html_message=email_html,
             from_email=settings.EMAIL_HOST_USER,
             recipient_list=subscribers,

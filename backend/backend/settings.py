@@ -1,27 +1,20 @@
 from datetime import timedelta
 import certifi, os
 
+import dj_database_url
+
 os.environ["SSL_CERT_FILE"] = certifi.where()
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-0gffldcne7qkwl8dy&sp=o@9z%x=u+p8xjd!r+2&4_5y629&5m"
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-USE_I18N = True
-# Application definition
 
 INSTALLED_APPS = [
     # custom
@@ -43,11 +36,14 @@ INSTALLED_APPS = [
     "newsletter",
     # libs,
     "rest_framework",
+    "drf_spectacular",
     "rest_framework_simplejwt",
     "django_filters",
     "corsheaders",
     "import_export",
     "tinymce",
+    "cloudinary_storage",
+    "cloudinary",
 ]
 
 MIDDLEWARE = [
@@ -81,20 +77,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default="postgresql://ride_future_user:AZmdAGEqNSgord9MqYRDUfv5FY2VNnvs@dpg-cuejb9ij1k6c73cjprj0-a.frankfurt-postgres.render.com/ride_future",
+        conn_max_age=600,
+    )
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -112,6 +100,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
     "COERCE_DECIMAL_TO_STRING": False,
@@ -119,6 +108,16 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Ride Future API",
+    "DESCRIPTION": "This is the Ride Future API documentation.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,  # Disable /api/schema/
+}
+
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
@@ -132,8 +131,9 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "nazarznetynyak123@gmail.com"
-EMAIL_HOST_PASSWORD = "zqpj ixwq kixn sfka"
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = f"Ride Future {os.environ.get('EMAIL_HOST_USER')}"
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
@@ -147,8 +147,7 @@ CSRF_COOKIE_SECURE = False  # True in production
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = False  # True in production
 SESSION_COOKIE_HTTPONLY = True
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
+
 
 LANGUAGE_CODE = "en-us"
 
@@ -159,6 +158,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -166,8 +166,7 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "static/media"
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -175,8 +174,6 @@ AUTH_USER_MODEL = "users.User"
 
 SITE_URL = "http://127.0.0.1:8000"
 FRONTEND_SITE_URL = "http://localhost:5173"
-ADMIN_EMAIL = "nazarznetynyak123@gmail.com"
-
 
 from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
@@ -246,3 +243,6 @@ MODELTRANSLATION_FALLBACK_LANGUAGES = ("en", "cs")
 # Payment
 STRIPE_PUBLISHABLE_KEY = "pk_test_51QkXPeP4nZmouXJpX8eBtbRiPrYgJQ23nzAW11wWH18H9YcXzq01SxOPYGZX4inF7FE9s5slPQlsOtKwhthbQauY00Uqxpl3nR"
 STRIPE_SECRET_KEY = "sk_test_51QkXPeP4nZmouXJp5LMSHQu2OaXP8TvUY8gvdryvm2c64iICKkxgo2qReDApcPBA1YvsllXucFX9EJr7L4tcv4TG00kc6wE9zF"
+
+
+RECAPTCHA_SECRET_KEY = "6LcwaswqAAAAAPkocYev4SFeXjmRqtSWj9cZ5u3n"

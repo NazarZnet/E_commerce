@@ -4,9 +4,10 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setFilters } from '../redux/slices/filterSlice';
 import { Swiper, SwiperSlide } from "swiper/react";
-import 'swiper/css';
+
 import { useTranslation } from 'react-i18next';
 
+import "swiper/swiper-bundle.css";
 
 interface CategoryCarouselProps {
     categories: Category[];

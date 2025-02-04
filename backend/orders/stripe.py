@@ -90,7 +90,7 @@ def create_stripe_products_from_order(order):
         product_price = item.product.discounted_price()
         quantity = item.quantity
         product_image_url = (
-            f"{settings.SITE_URL}{item.product.gallery.first().image.url}"
+            f"{item.product.gallery.first().image.url}"
             if item.product.gallery.exists()
             else None
         )

@@ -1,5 +1,7 @@
+import requests
 from rest_framework import serializers
 from .models import User
+from django.conf import settings
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -28,10 +30,26 @@ class TempPasswordSerializer(serializers.Serializer):
 
     email = serializers.EmailField(write_only=True)
     temp_password = serializers.CharField(write_only=True, required=False)
+    recaptcha = serializers.CharField(write_only=True, required=False)
 
     def validate(self, data):
-        print("Data:", data)
         email = data.get("email")
+        recaptcha_token = data.get("recaptcha")
+
+        if recaptcha_token:
+            # Verify reCAPTCHA
+            recaptcha_response = requests.post(
+                "https://www.google.com/recaptcha/api/siteverify",
+                data={
+                    "secret": settings.RECAPTCHA_SECRET_KEY,
+                    "response": recaptcha_token,
+                },
+            ).json()
+
+            if not recaptcha_response.get("success"):
+                raise serializers.ValidationError(
+                    {"recaptcha": "Invalid reCAPTCHA. Please try again."}
+                )
 
         # Create or get the user
         user, created = User.objects.get_or_create(email=email)

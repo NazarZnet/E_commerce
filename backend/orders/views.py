@@ -9,6 +9,8 @@ from django.conf import settings
 from django.urls import reverse
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ModelViewSet
+
+from users.models import User
 from .models import Order
 from .serializers import OrderSerializer
 from .stripe import (
@@ -91,6 +93,13 @@ class OrderSuccessView(APIView):
 
         # Mark the order as paid
         order.status = "confirmed"
+        for item in order.items.all():
+            if item.product.stock >= item.quantity:
+                item.product.stock -= item.quantity
+                item.product.save()
+            else:
+                raise ValueError(f"Not enough stock for product {item.product.name}")
+
         order.save()
 
         self._send_order_email(order)
@@ -112,7 +121,7 @@ class OrderSuccessView(APIView):
                 "quantity": item.quantity,
                 "price": item.product.discounted_price(),
                 "product_image": (
-                    f"{settings.SITE_URL}{item.product.gallery.first().image.url}"
+                    f"{item.product.gallery.first().image.url}"
                     if item.product.gallery.exists()
                     else ""
                 ),
@@ -123,6 +132,7 @@ class OrderSuccessView(APIView):
         email_content = render_to_string(
             "email/orderCreated.html",
             {
+                "logo_url": f"{settings.SITE_URL}/static/logo.png",
                 "first_name": order.user.first_name,
                 "last_name": order.user.last_name,
                 "email": order.user.email,
@@ -138,12 +148,16 @@ class OrderSuccessView(APIView):
             },
         )
 
+        admin_emails = User.objects.filter(is_superuser=True).values_list(
+            "email", flat=True
+        )
+
         send_mail(
             subject=f"RideFuture: New Order #{order.id}",
             message="",
             html_message=email_content,
             from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[settings.ADMIN_EMAIL],
+            recipient_list=list(admin_emails),
         )
 
 

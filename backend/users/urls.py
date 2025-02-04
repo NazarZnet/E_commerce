@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
     GenerateTempPasswordView,
+    HelpRequestView,
     UserUpdateView,
     VerifyTempPasswordView,
     ProfileView,
@@ -23,4 +24,5 @@ urlpatterns = [
     path("profile/", ProfileView.as_view(), name="profile"),
     path("users/update/", UserUpdateView.as_view(), name="user_update"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("help-request/", HelpRequestView.as_view(), name="help-request"),
 ]

@@ -3,7 +3,7 @@ import { Category } from "../interfaces/category";
 import { Product, ProductComment } from "../interfaces/product";
 import { UpdateUserInfoPayload } from "../interfaces/user";
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'https://ridefutureapi.onrender.com/api';
 
 // Fetch Featured Products
 export const getFeaturedProducts = async (language: string): Promise<Product[]> => {
@@ -140,10 +140,11 @@ export const getSimilarProducts = async (slug: string): Promise<Product[]> => {
 
 
 // Generate a temporary password
-export const generateTempPassword = async (email: string): Promise<void> => {
+export const generateTempPassword = async (email: string, captchaToken: string): Promise<any> => {
     try {
         const response = await axios.post(`${API_BASE_URL}/auth/generate-temp-password/`, {
             email,
+            recaptcha: captchaToken
         });
         return response.data;
     } catch (error: any) {
@@ -156,7 +157,7 @@ export const verifyTempPassword = async (email: string, tempPassword: string): P
     try {
         const response = await axios.post(`${API_BASE_URL}/auth/verify-temp-password/`, {
             email,
-            temp_password: tempPassword,
+            temp_password: tempPassword
         });
         return response.data;
     } catch (error: any) {
@@ -311,5 +312,62 @@ export const subscribeUser = async (email: string): Promise<string> => {
         return data.message; // "Successfully subscribed!"
     } catch (error: any) {
         throw new Error(error.message);
+    }
+};
+
+export const createOrder = async (orderData: any) => {
+    try {
+        console.log(orderData);
+        const response = await fetch(`${API_BASE_URL}/orders/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(orderData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData);
+        }
+
+        const data = await response.json();
+        return data;
+
+
+    } catch (err: any) {
+        console.error("Failed to create order:", err);
+        throw new Error("Failed to create order.");
+    }
+
+}
+export const getAllProducts = async (language: string) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/products?lang=${language}`);
+        if (response.ok) {
+            const data = await response.json();
+            return data
+        } else {
+            console.error("Failed to fetch products");
+            throw new Error("Failed to fetch products");
+        }
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        throw new Error("Failed to fetch products.");
+    }
+}
+
+export const sendHelpRequest = async (email: string, subject: string, message: string) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/help-request/`, {
+            email,
+            subject,
+            message
+        });
+
+        return response.data;  // Successfully sent
+    } catch (error: any) {
+        console.error("Error sending help request:", error.response?.data || error.message);
+        throw new Error(error.response?.data?.error || "Failed to send help request.");
     }
 };

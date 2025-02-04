@@ -8,6 +8,7 @@ import { RootState } from "../../redux/store";
 import { clearAuthData, setAuthData, updateTokens } from "../../redux/slices/authSlice";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n/config";
+import Loader from "../../Components/Loader";
 
 const ProfilePage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -165,7 +166,7 @@ const ProfilePage: React.FC = () => {
         navigate("/login");
     };
     if (loading) {
-        return <div>{t("loading")}</div>;
+        return <div><Loader /></div>;
     }
 
     if (error) {
@@ -263,7 +264,7 @@ const ProfilePage: React.FC = () => {
                                             </span>
                                         </p>
                                         <p>
-                                            <strong>{t("order_total_price")}</strong> ${order.total_price.toFixed(2)}
+                                            <strong>{t("order_total_price")}</strong> €{order.total_price.toFixed(2)}
                                         </p>
                                         <p>
                                             <strong> {t("profile_order_date")} </strong>{" "}
@@ -282,7 +283,7 @@ const ProfilePage: React.FC = () => {
                                                 <div className="flex-grow">
                                                     <Link to={`/products/${item.product.slug}`} className="font-medium">{item.product.name}</Link>
                                                     <p className="text-sm text-gray-500">
-                                                        {item.quantity} x ${item.product.discounted_price.toFixed(2)}
+                                                        {item.quantity} x €{item.product.discounted_price.toFixed(2)}
                                                     </p>
                                                 </div>
                                             </li>

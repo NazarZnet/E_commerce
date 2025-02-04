@@ -80,6 +80,7 @@
     "profile_order_phone": "Telefon: ",
     "profile_order_notes": "Poznámky:",
     "about_us": "O nás",
+    "help_center": "Centrum pomoci",
     "contact_us": "Kontaktujte nás",
     "about_us_description": "Nabízíme širokou škálu prémiových elektrických koloběžek a příslušenství, které vás posunou do budoucnosti. Kvalita a spokojenost zaručena!",
     "stay_updated": "Buďte v obraze",
@@ -87,5 +88,14 @@
     "subscribe_btn": "Přihlásit se k odběru",
     "subscribe_btn_loading": "Přihlašování...",
     "subscription_success": "Úspěšně přihlášen k odběru!",
-    "subscription_failed": "Něco se pokazilo. Možná už jste odběratel. Zkuste prosím jiný e-mail."
+    "subscription_failed": "Něco se pokazilo. Možná už jste odběratel. Zkuste prosím jiný e-mail.",
+    "help_title": "Centrum pomoci",
+    "help_description": "Pokud máte nějaké otázky nebo potřebujete pomoc, vyplňte prosím formulář níže.",
+    "help_email": "Váš e-mail",
+    "help_subject": "Předmět",
+    "help_message": "Vaše zpráva",
+    "help_btn": "Odeslat zprávu",
+    "help_btn_loading": "Odesílání...",
+    "help_success": "Vaše zpráva byla úspěšně odeslána!",
+    "help_error": "Nepodařilo se odeslat zprávu. Zkuste to prosím znovu."
 }

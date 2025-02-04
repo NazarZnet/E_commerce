@@ -2,62 +2,53 @@ import React, { useEffect, useState } from "react";
 
 import { useSelector } from "react-redux";
 import { Product } from "../../interfaces/product";
-import { getCategories } from "../../utils/api";
+import { getAllProducts, getCategories } from "../../utils/api";
 import Filters from "../../Components/Filters";
 import ProductCard from "../../Components/ProductCart";
 import { Category } from "../../interfaces/category";
 import { RootState } from "../../redux/store";
 import i18n from "../../i18n/config";
+import Loader from "../../Components/Loader";
 
 const ShopPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [maxProductPrice, setMaxProductPrice] = useState<number | null>(null);
-
+  const [loading, setLoading] = useState(true);
 
   const filters = useSelector((state: RootState) => state.filters);
 
 
   useEffect(() => {
-    // Fetch categories and products
-    const fetchCategories = async (language: string) => {
-      try {
-        const data = await getCategories(language);
-        setCategories(data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
 
-    const fetchProducts = async (language: string) => {
+    const fetchData = async (language: string) => {
+      setLoading(true);
       try {
-        const response = await fetch(`/api/products?lang=${language}`);
-        if (response.ok) {
-          const data = await response.json();
-          setProducts(data.results);
-          setFilteredProducts(data.results);
 
-          const maxPrice = Math.max(
-            ...data.results.map((p: Product) => p.price),
-            0
-          );
-          setMaxProductPrice(maxPrice);
-        } else {
-          console.error("Failed to fetch products");
-        }
+        const [categoriesData, productsData] = await Promise.all([
+          getCategories(language),
+          getAllProducts(language),
+        ]);
+
+        setCategories(categoriesData);
+        setProducts(productsData.results);
+        setFilteredProducts(productsData.results);
+
+        const maxPrice = Math.max(...productsData.results.map((p: Product) => p.price), 0);
+        setMaxProductPrice(maxPrice);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     const handleLanguageChange = (language: string) => {
-      fetchCategories(language);
-      fetchProducts(language);
+      fetchData(language)
     };
 
-    fetchCategories(i18n.language);
-    fetchProducts(i18n.language);
+    fetchData(i18n.language)
 
     // Listen for language changes
     i18n.on("languageChanged", handleLanguageChange);
@@ -70,6 +61,7 @@ const ShopPage: React.FC = () => {
 
   // Apply filters to products
   useEffect(() => {
+    if (!products.length) return;
     console.log("Receive filters: ", filters);
     let updatedProducts = [...products];
 
@@ -136,28 +128,31 @@ const ShopPage: React.FC = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen p-4">
-      <div className="relative max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Filters Section */}
-        {maxProductPrice !== null && (
-          <Filters
-            categories={categories}
-            maxProductPrice={maxProductPrice}
-          />
-        )}
-
-        {/* Products Section */}
-        <div className="mt-40 w-full grid justify-items-center items-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 col-span-4  gap-6">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-            <p className="col-span-full text-center text-gray-500">
-              No products found.
-            </p>
+      {loading ? (<Loader />) : (
+        <div className="relative max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Filters Section */}
+          {maxProductPrice !== null && (
+            <Filters
+              categories={categories}
+              maxProductPrice={maxProductPrice}
+            />
           )}
+
+          {/* Products Section */}
+          <div className="mt-40 w-full grid justify-items-center items-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 col-span-4  gap-6">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            ) : (
+              <p className="col-span-full text-center text-gray-500">
+                No products found.
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
+
     </div>
   );
 };

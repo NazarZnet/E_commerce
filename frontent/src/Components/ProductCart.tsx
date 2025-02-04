@@ -93,7 +93,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
             {/* Product Details */}
             <div className="h-[30%] p-2 flex flex-col justify-between">
-                <h3 className="text-lg font-semibold text-gray-800 cursor-pointer" onClick={() => goToDetails(product.slug)}>{product.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-800 cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap" onClick={() => goToDetails(product.slug)}>{product.name}</h3>
                 {renderStars()}
                 <div className="flex items-center justify-between mt-1">
                     {product.discounted_price !== product.price ? (
@@ -106,11 +106,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                             </span>
                         </>
                     ) : (
-                        <span className="text-gray-500">${product.price}</span>
+                        <span className="text-gray-500">€{product.price}</span>
                     )}
                 </div>
                 <div className="flex gap-1 mt-3">
-                    <button onClick={handleAddToBasket} className="bg-orange-500 text-white p-2 rounded-lg hover:bg-orange-600 transition w-full">
+
+                    <button
+                        onClick={handleAddToBasket}
+                        disabled={product.stock <= 0}
+                        className={`p-2 rounded-lg transition w-full ${product.stock <= 0
+                            ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                            : "bg-orange-500 text-white hover:bg-orange-600"
+                            }`}
+                    >
                         {t("add_to_basket")}
                     </button>
                     <button className="group bg-transparent border border-orange-500 text-orange-500 p-2 rounded-lg hover:bg-orange-500 hover:text-white transition w-full"

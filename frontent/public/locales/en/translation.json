@@ -81,11 +81,21 @@
     "profile_order_notes": "Notes:",
     "about_us": "About Us",
     "contact_us": "Contact Us",
+    "help_center": "Help Center",
     "about_us_description": "We offer a wide range of premium electric scooters and accessories to power your ride into the future. Quality and satisfaction guaranteed!",
     "stay_updated": "Stay Updated",
     "stay_updated_description": "Sign up for our newsletter to get the latest updates on new arrivals and exclusive offers.",
     "subscribe_btn": "Subscribe",
     "subscribe_btn_loading": "Subscribing...",
     "subscription_success": "Subscribed successfully!",
-    "subscription_failed": "Something went wrong. Maybe you already subscibed. Try another email please."
+    "subscription_failed": "Something went wrong. Maybe you already subscibed. Try another email please.",
+    "help_title": "Help Center",
+    "help_description": "If you have any questions or need assistance, please fill out the form below.",
+    "help_email": "Your email",
+    "help_subject": "Subject",
+    "help_message": "Your message",
+    "help_btn": "Send Message",
+    "help_btn_loading": "Sending...",
+    "help_success": "Your message has been sent successfully!",
+    "help_error": "Failed to send the message. Please try again."
 }
