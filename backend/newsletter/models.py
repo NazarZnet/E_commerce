@@ -42,7 +42,7 @@ class Newsletter(models.Model):
             subject=self.subject,
             message="Your email client does not support HTML emails.",
             html_message=email_html,
-            from_email=settings.EMAIL_HOST_USER,
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=subscribers,
             fail_silently=False,
         )

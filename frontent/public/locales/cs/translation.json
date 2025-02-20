@@ -49,6 +49,8 @@
     "order_notes": "Poznámky k objednávce (volitelné)",
     "order_btn": "Odeslat objednávku",
     "order_btn_loading": "Odesílání objednávky...",
+    "order_add_guarantee": "24 měsíční záruku",
+    "order_add_guarantee_description": "Prodlužte záruku na váš produkt na 24 měsíců za příplatek €50 za kus.",
     "order_error": "Nepodařilo se vytvořit objednávku. Zkuste to znovu později",
     "order_success_title": "Platba byla úspěšná!",
     "order_success_description": "Vaše objednávka byla úspěšně vytvořena. Můžete se vrátit zpět do obchodu. Brzy vás budeme kontaktovat!",

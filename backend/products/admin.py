@@ -71,10 +71,14 @@ class ProductCharacteristicInline(TabularInline, TranslationTabularInline):
 class CategoryAdmin(ModelAdmin, TabbedTranslationAdmin, ImportExportModelAdmin):
     import_form_class = ImportForm
     export_form_class = ExportForm
-    list_display = ("name", "slug", "created_at", "updated_at")
+    list_display = ("name", "slug", "long_term_guarantee", "created_at", "updated_at")
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ("name",)
-    list_filter = (("created_at", RangeDateFilter), ("updated_at", RangeDateFilter))
+    list_filter = (
+        ("created_at", RangeDateFilter),
+        ("updated_at", RangeDateFilter),
+        "long_term_guarantee",
+    )
     readonly_fields = ("created_at", "updated_at")
 
 

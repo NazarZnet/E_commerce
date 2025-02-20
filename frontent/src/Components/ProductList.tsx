@@ -39,12 +39,12 @@ const ProductList: React.FC<{ products: Product[], title: string, subtitle: stri
                 loop={true}
                 centeredSlides={false}
                 breakpoints={{
-                    640: { slidesPerView: 4 },
+                    640: { slidesPerView: 2 },
                     768: { slidesPerView: 2.2 },
                     1024: { slidesPerView: 3 },
                     1280: { slidesPerView: 4, spaceBetween: 5 },
-                    1536: { slidesPerView: 4.2, spaceBetween: 5 },
-                    2000: { slidesPerView: 5, spaceBetween: 5 }
+                    1536: { slidesPerView: 4, spaceBetween: 5 },
+                    2000: { slidesPerView: 4, spaceBetween: 5 }
                 }}
 
             >

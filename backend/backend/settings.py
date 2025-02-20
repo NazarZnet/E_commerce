@@ -79,7 +79,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 
 DATABASES = {
     "default": dj_database_url.config(
-        default="postgresql://ride_future_user:AZmdAGEqNSgord9MqYRDUfv5FY2VNnvs@dpg-cuejb9ij1k6c73cjprj0-a.frankfurt-postgres.render.com/ride_future",
+        default="postgresql://ride_future_45c7_user:SKdsjRyuSDHl65Z6nXbAO4HWuuzwRckw@dpg-cuoe9d5ds78s738jmqi0-a.frankfurt-postgres.render.com/ride_future_45c7",
         conn_max_age=600,
     )
 }
@@ -241,8 +241,7 @@ LANGUAGES = (
 MODELTRANSLATION_DEFAULT_LANGUAGE = "en"
 MODELTRANSLATION_FALLBACK_LANGUAGES = ("en", "cs")
 # Payment
-STRIPE_PUBLISHABLE_KEY = "pk_test_51QkXPeP4nZmouXJpX8eBtbRiPrYgJQ23nzAW11wWH18H9YcXzq01SxOPYGZX4inF7FE9s5slPQlsOtKwhthbQauY00Uqxpl3nR"
-STRIPE_SECRET_KEY = "sk_test_51QkXPeP4nZmouXJp5LMSHQu2OaXP8TvUY8gvdryvm2c64iICKkxgo2qReDApcPBA1YvsllXucFX9EJr7L4tcv4TG00kc6wE9zF"
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
 
-
-RECAPTCHA_SECRET_KEY = "6LcwaswqAAAAAPkocYev4SFeXjmRqtSWj9cZ5u3n"
+RECAPTCHA_SECRET_KEY = os.environ.get("RECAPTCHA_SECRET_KEY")

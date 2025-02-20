@@ -13,10 +13,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
     product_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(), source="product", write_only=True
     )
+    long_term_guarantee_selected = serializers.BooleanField(default=False)
 
     class Meta:
         model = OrderItem
-        fields = ["product", "product_id", "quantity"]
+        fields = ["product", "product_id", "quantity", "long_term_guarantee_selected"]
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -65,6 +66,16 @@ class OrderSerializer(serializers.ModelSerializer):
         for item_data in items_data:
             product = item_data["product"]
             quantity = item_data["quantity"]
-            OrderItem.objects.create(order=order, product=product, quantity=quantity)
+            long_term_guarantee_selected = item_data.get(
+                "long_term_guarantee_selected", False
+            )
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=quantity,
+                long_term_guarantee_selected=long_term_guarantee_selected,
+            )
 
+        # Recalculate total price including guarantee
+        order.calculate_total_price()
         return order

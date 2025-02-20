@@ -98,8 +98,8 @@
         <p><strong>Name:</strong> {{ first_name }} {{ last_name }}</p>
         <p><strong>Email:</strong> {{ email }}</p>
         <p><strong>Phone:</strong> {{ phone }}</p>
-        <p><strong>Address:</strong> {{ address }}, {{ city }}, {{ postal_code
-          }}, {{ country }}</p>
+        <p><strong>Address:</strong> {{ address }}, {{ city }},
+          {{ postal_code}}, {{ country }}</p>
 
         <h2>Order Details</h2>
         <p><strong>Total Price:</strong> €{{ total_price }}</p>
@@ -110,6 +110,7 @@
               <th>Product</th>
               <th>Quantity</th>
               <th>Price</th>
+              <th>Long-Term Guarantee</th>
             </tr>
           </thead>
           <tbody>
@@ -120,6 +121,13 @@
               <td>{{ item.product_name }}</td>
               <td>{{ item.quantity }}</td>
               <td>${{ item.price }}</td>
+              <td>
+                {% if item.long_term_guarantee_selected %}
+                ✅ Yes (€50 per item)
+                {% else %}
+                ❌ No
+                {% endif %}
+              </td>
             </tr>
             {% endfor %}
           </tbody>

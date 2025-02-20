@@ -3,7 +3,7 @@ import { Category } from "../interfaces/category";
 import { Product, ProductComment } from "../interfaces/product";
 import { UpdateUserInfoPayload } from "../interfaces/user";
 
-const API_BASE_URL = 'https://ridefutureapi.onrender.com/api';
+const API_BASE_URL = 'https://ride-future-api.onrender.com/api';
 
 // Fetch Featured Products
 export const getFeaturedProducts = async (language: string): Promise<Product[]> => {
@@ -261,9 +261,9 @@ export const updateUserInfo = async (
 };
 
 export interface SaveCommentData {
-    product: number; // Product ID
-    comment?: string; // Optional comment text
-    rating?: number;  // Optional rating (1 to 5 stars)
+    product: number;
+    comment?: string;
+    rating?: number;
 }
 
 export const saveComment = async (data: SaveCommentData, accessToken: string | null): Promise<ProductComment> => {

@@ -88,7 +88,7 @@ const Navigation: React.FC = () => {
   return (
     <nav
       className="h-16 fixed z-50 w-full flex justify-between items-center p-2 md:p-4 bg-black text-white shadow-md"
-      style={{ fontFamily: "RubikVinyl" }}
+      style={{ fontFamily: "Liter" }}
     >
       {/* Left Section: Logo */}
       <div className="flex items-center md:space-x-2">

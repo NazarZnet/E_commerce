@@ -99,7 +99,11 @@ class ProductSerializer(serializers.ModelSerializer):
         """
         Return only the name and slug of the category.
         """
-        return {"name": obj.category.name, "slug": obj.category.slug}
+        return {
+            "name": obj.category.name,
+            "slug": obj.category.slug,
+            "long_term_guarantee": obj.category.long_term_guarantee,
+        }
 
     def get_discounted_price(self, obj):
         """

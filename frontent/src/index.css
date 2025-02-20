@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face{
-    font-family: "RubikVinyl";
-    src:local("RubikVinyl-Regular"),
-    url('./assets/fonts/RubikVinyl-Regular.ttf') 
-  }
+@font-face {
+  font-family: "Liter";
+  src: local("Liter-Regular"),
+    url('./assets/fonts/Liter-Regular.ttf')
+}

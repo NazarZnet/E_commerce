@@ -20,6 +20,7 @@ export interface ProductComment {
 export interface ProductCategory {
   name: string;
   slug: string;
+  long_term_guarantee: boolean;
 }
 
 export interface ProductCharacteristic {

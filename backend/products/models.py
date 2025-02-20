@@ -15,6 +15,9 @@ class Category(models.Model):
     icon = models.TextField(
         blank=True, null=True, help_text="Store an SVG icon as a string"
     )
+    long_term_guarantee = models.BooleanField(
+        default=False, help_text="Guarantee 24 mounth for products"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

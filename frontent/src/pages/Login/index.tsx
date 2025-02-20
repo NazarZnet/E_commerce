@@ -136,7 +136,7 @@ const LoginPage: React.FC = () => {
                             />
                             <ReCAPTCHA
                                 ref={recaptchaRef}
-                                sitekey="6LcwaswqAAAAAMCSGK9B6mT5Cmt32PUnsOw_X1wF"
+                                sitekey="6Lf8OtoqAAAAAHsbakLkySsFwjNskIjrqiod6h0D"
                                 onChange={handleRecaptcha}
                                 className="mt-4 "
                             />

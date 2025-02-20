@@ -36,7 +36,7 @@ const OrderPage: React.FC = () => {
         postal_code: "",
         order_notes: "", // New field for order notes
     });
-
+    const [selectedGuarantees, setSelectedGuarantees] = useState<{ [key: number]: boolean }>({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -86,9 +86,13 @@ const OrderPage: React.FC = () => {
 
 
     const totalPrice = basket.items.reduce(
-        (total, item) => total + item.product.discounted_price * item.quantity,
+        (total, item) => total + item.product.discounted_price * item.quantity + (selectedGuarantees[item.product.id] ? 50 * item.quantity : 0),
         0
     );
+
+    const handleGuaranteeChange = (productId: number) => {
+        setSelectedGuarantees(prev => ({ ...prev, [productId]: !prev[productId] }));
+    };
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -110,7 +114,7 @@ const OrderPage: React.FC = () => {
         e.preventDefault();
 
         if (basket.items.length === 0) {
-            setError("Your basket is empty.");
+            setError(t("empty_basket"));
             return;
         }
 
@@ -122,8 +126,10 @@ const OrderPage: React.FC = () => {
             items: basket.items.map((item) => ({
                 product_id: item.product.id,
                 quantity: item.quantity,
+                long_term_guarantee_selected: selectedGuarantees[item.product.id] || false,
             })),
         };
+
 
         try {
 
@@ -181,6 +187,23 @@ const OrderPage: React.FC = () => {
                                             </p>
                                         </div>
                                     </div>
+                                    {product.category.long_term_guarantee && (
+                                        <div className="flex items-center space-x-4 relative">
+                                            <label className="flex items-center space-x-2 cursor-pointer group">
+                                                <input
+                                                    type="checkbox"
+                                                    className="w-4 h-4 accent-orange-500"
+                                                    checked={selectedGuarantees[product.id] || false}
+                                                    onChange={() => handleGuaranteeChange(product.id)}
+                                                />
+                                                <span>{t("order_add_guarantee")}</span>
+                                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg w-52 text-center">
+                                                    {t("order_add_guarantee_description")}
+                                                </div>
+                                                <span className="ml-1 text-gray-500 text-sm cursor-pointer">?</span>
+                                            </label>
+                                        </div>
+                                    )}
                                     <div className="flex items-center space-x-4">
                                         <input
                                             type="number"
@@ -198,6 +221,8 @@ const OrderPage: React.FC = () => {
                                             {t("remove_btn")}
                                         </button>
                                     </div>
+
+
                                 </li>
                             ))}
                         </ul>

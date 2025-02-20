@@ -172,7 +172,7 @@ class HelpRequestView(APIView):
         send_mail(
             subject=f"New Help Request: {subject}",
             message=plain_message,
-            from_email=settings.EMAIL_HOST_USER,
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=superuser_emails,
             html_message=html_message,
         )

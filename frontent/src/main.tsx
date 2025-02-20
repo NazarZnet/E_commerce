@@ -1,7 +1,7 @@
 import { StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import "./assets/fonts/RubikVinyl-Regular.ttf";
+import "./assets/fonts/Liter-Regular.ttf";
 import App from './App.tsx'
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from 'react-redux';

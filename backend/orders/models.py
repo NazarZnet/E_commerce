@@ -32,10 +32,15 @@ class Order(models.Model):
 
     def calculate_total_price(self):
         """
-        Calculate the total price of the order based on its items.
+        Calculate the total price of the order based on its items and their optional long-term guarantees.
         """
         total = sum(
-            item.product.discounted_price() * item.quantity for item in self.items.all()
+            (
+                item.product.discounted_price()
+                + (50 if item.long_term_guarantee_selected else 0)
+            )
+            * item.quantity
+            for item in self.items.all()
         )
         self.total_price = total
         self.save()
@@ -46,12 +51,13 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    product = models.ForeignKey("products.Product", on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField()
+    long_term_guarantee_selected = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         """
-        Override the save method to recalculate the order's total price.
+        Override the save method to recalculate the order's total price including guarantees.
         """
         super().save(*args, **kwargs)
         self.order.calculate_total_price()

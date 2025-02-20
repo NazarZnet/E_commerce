@@ -125,6 +125,7 @@ class OrderSuccessView(APIView):
                     if item.product.gallery.exists()
                     else ""
                 ),
+                "long_term_guarantee_selected": item.long_term_guarantee_selected,
             }
             for item in items
         ]

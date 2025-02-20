@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaFacebook, FaTelegram } from "react-icons/fa";
+// import { FaFacebook, FaTelegram } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { subscribeUser } from "../utils/api";
 import { Link } from "react-router-dom";
@@ -55,7 +55,7 @@ const Footer: React.FC = () => {
                                     {t("help_center")}
                                 </Link>
                             </li>
-                            <li>
+                            {/* <li>
                                 <p className="flex items-center gap-4">
                                     <a href="" className="cursor-pointer">
                                         <FaTelegram fontSize={30} fill="#f97316" />
@@ -70,7 +70,7 @@ const Footer: React.FC = () => {
                                     </a>{" "}
                                     @Nickname
                                 </p>
-                            </li>
+                            </li> */}
                         </ul>
                     </div>
 
