@@ -37,7 +37,7 @@ class Order(models.Model):
         total = sum(
             (
                 item.product.discounted_price()
-                + (50 if item.long_term_guarantee_selected else 0)
+                + (1250 if item.long_term_guarantee_selected else 0)
             )
             * item.quantity
             for item in self.items.all()

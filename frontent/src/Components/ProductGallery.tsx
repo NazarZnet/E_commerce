@@ -21,9 +21,9 @@ const ProductGallery: React.FC<{ images: Gallery[] }> = ({ images: gallery }) =>
     };
 
     return (
-        <div className="flex gap-4">
-            {/* Thumbnails */}
-            <div className="w-1/4 flex flex-col space-y-4">
+        <div className="flex flex-col-reverse md:flex-row gap-4">
+            {/* Thumbnails on the left in md and larger, below in smaller screens */}
+            <div className="w-full md:w-1/4 flex flex-row md:flex-col space-x-4 md:space-x-0 md:space-y-4 max-h-[450px] overflow-y-auto">
                 {gallery.map((item) => (
                     <img
                         key={item.id}
@@ -38,7 +38,7 @@ const ProductGallery: React.FC<{ images: Gallery[] }> = ({ images: gallery }) =>
 
             {/* Main Image with Zoom */}
             <div
-                className="relative w-3/4 group"
+                className="relative w-full md:w-3/4 group"
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
             >

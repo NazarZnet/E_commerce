@@ -173,15 +173,15 @@ const ProductDetailsPage: React.FC = () => {
             {product.discounted_price !== product.price ? (
               <>
                 <span className="text-orange-500 font-bold text-xl">
-                  €{product.discounted_price}
+                  {product.discounted_price} Kč
                 </span>
                 <span className="text-gray-400 line-through">
-                  €{product.price}
+                  {product.price} Kč
                 </span>
               </>
             ) : (
               <span className="text-gray-500 font-bold text-xl">
-                €{product.price}
+                {product.price} Kč
               </span>
             )}
           </div>
@@ -242,8 +242,8 @@ const ProductDetailsPage: React.FC = () => {
               onClick={handleBuyNow}
               disabled={product.stock <= 0}
               className={`py-2 px-6 rounded-lg transition ${product.stock <= 0
-                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                  : "bg-gray-800 text-white hover:bg-gray-700"
+                ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                : "bg-gray-800 text-white hover:bg-gray-700"
                 }`}
             >
               {t("buy_now")}

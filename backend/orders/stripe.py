@@ -45,7 +45,7 @@ def get_or_create_stripe_product_and_price(
             (
                 p
                 for p in existing_prices.data
-                if p.unit_amount == price_in_cents and p.currency == "eur"
+                if p.unit_amount == price_in_cents and p.currency == "czk"
             ),
             None,
         )
@@ -54,7 +54,7 @@ def get_or_create_stripe_product_and_price(
             stripe_price = stripe.Price.create(
                 product=product.id,
                 unit_amount=price_in_cents,
-                currency="eur",
+                currency="czk",
             )
 
         return product, stripe_price
@@ -71,7 +71,7 @@ def get_or_create_stripe_guarantee(product_name, quantity):
     """
     guarantee_product_name = f"{product_name} - 24 Month Guarantee"
     guarantee_description = "Extended warranty for 24 months."
-    guarantee_price = 50  # Fixed guarantee cost per item
+    guarantee_price = 1250  # Fixed guarantee cost per item
 
     try:
         guarantee_product, guarantee_stripe_price = (

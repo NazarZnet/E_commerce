@@ -264,7 +264,7 @@ const ProfilePage: React.FC = () => {
                                             </span>
                                         </p>
                                         <p>
-                                            <strong>{t("order_total_price")}</strong> €{order.total_price.toFixed(2)}
+                                            <strong>{t("order_total_price")}</strong> {order.total_price.toFixed(2)} Kč
                                         </p>
                                         <p>
                                             <strong> {t("profile_order_date")} </strong>{" "}
@@ -283,7 +283,7 @@ const ProfilePage: React.FC = () => {
                                                 <div className="flex-grow">
                                                     <Link to={`/products/${item.product.slug}`} className="font-medium">{item.product.name}</Link>
                                                     <p className="text-sm text-gray-500">
-                                                        {item.quantity} x €{item.product.discounted_price.toFixed(2)}
+                                                        {item.quantity} x {item.product.discounted_price.toFixed(2)} Kč
                                                     </p>
                                                 </div>
                                             </li>

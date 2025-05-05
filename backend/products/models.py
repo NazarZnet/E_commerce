@@ -60,7 +60,9 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     description = models.TextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, help_text="Price for a product in Kč"
+    )
     discount_percentage = models.DecimalField(
         max_digits=5,
         decimal_places=2,

@@ -17,9 +17,7 @@ const OrderPage: React.FC = () => {
     const dispatch = useDispatch();
     const basket = useSelector((state: RootState) => state.basket);
     const countryOptions = [
-        { value: "CZ", label: "Czech Republic" },
-        { value: "PL", label: "Poland" },
-        { value: "AT", label: "Austria" },
+        { value: "CZ", label: "Czech Republic" }
     ];
     const accessToken = useSelector((state: RootState) => state.auth.access_token);
     const refreshToken = useSelector((state: RootState) => state.auth.refresh_token);
@@ -30,7 +28,7 @@ const OrderPage: React.FC = () => {
         first_name: "",
         last_name: "",
         phone: "",
-        country: "",
+        country: countryOptions[0]?.value || "",
         address: "",
         city: "",
         postal_code: "",
@@ -86,7 +84,7 @@ const OrderPage: React.FC = () => {
 
 
     const totalPrice = basket.items.reduce(
-        (total, item) => total + item.product.discounted_price * item.quantity + (selectedGuarantees[item.product.id] ? 50 * item.quantity : 0),
+        (total, item) => total + item.product.discounted_price * item.quantity + (selectedGuarantees[item.product.id] ? 1250 * item.quantity : 0),
         0
     );
 
@@ -183,7 +181,7 @@ const OrderPage: React.FC = () => {
                                         <div>
                                             <Link to={`/products/${product.slug}`} className="font-medium">{product.name}</Link>
                                             <p className="text-sm text-gray-500">
-                                                {t("price")} €{product.discounted_price}
+                                                {t("price")} {product.discounted_price} Kč
                                             </p>
                                         </div>
                                     </div>
@@ -228,7 +226,7 @@ const OrderPage: React.FC = () => {
                         </ul>
                     )}
                     <div className="mt-4 text-right font-bold">
-                        {t("order_total_price")} €{totalPrice.toFixed(2)}
+                        {t("order_total_price")} {totalPrice.toFixed(2)} Kč
                     </div>
                 </div>
 
@@ -269,7 +267,7 @@ const OrderPage: React.FC = () => {
                         <select
                             id="country"
                             name="country"
-                            value={form.country}
+                            value={form.country || countryOptions[0]?.value}
                             onChange={handleInputChange}
                             className="p-2 border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                         >

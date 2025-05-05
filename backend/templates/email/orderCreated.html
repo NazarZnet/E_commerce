@@ -102,7 +102,7 @@
           {{ postal_code}}, {{ country }}</p>
 
         <h2>Order Details</h2>
-        <p><strong>Total Price:</strong> €{{ total_price }}</p>
+        <p><strong>Total Price:</strong> {{ total_price }} Kč</p>
         <table class="items">
           <thead>
             <tr>
@@ -123,7 +123,7 @@
               <td>${{ item.price }}</td>
               <td>
                 {% if item.long_term_guarantee_selected %}
-                ✅ Yes (€50 per item)
+                ✅ Yes (1250 Kč per item)
                 {% else %}
                 ❌ No
                 {% endif %}
