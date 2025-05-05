@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f9f9f9;
+        padding: 20px;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #ff7f3f;
+        color: #ffffff;
+        text-align: center;
+        padding: 5px;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .header img{
+        width: 70px;
+        height: 70px;
+      }
+
+      .content {
+        padding: 20px;
+      }
+      .content h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: #555;
+      }
+      .content p {
+        margin: 0 0 10px;
+        color: #666;
+      }
+      .content .items {
+        margin-top: 20px;
+        border-collapse: collapse;
+        width: 100%;
+      }
+      .content .items th,
+      .content .items td {
+        text-align: left;
+        padding: 10px;
+        border: 1px solid #ddd;
+      }
+      .content .items th {
+        background-color: #f7f7f7;
+      }
+      .content .items td img {
+        max-width: 50px;
+        height: auto;
+        display: block;
+      }
+      .button {
+        display: inline-block;
+        background-color: #ff6600;
+        color: #fff;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 14px;
+        margin-top: 20px;
+        text-align: center;
+      }
+      .button:hover {
+        background-color: #e65c00;
+      }
+      .footer {
+        text-align: center;
+        background-color: #f7f7f7;
+        padding: 10px;
+        font-size: 14px;
+        color: #777;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="{{logo_url}}" alt="Ride Future Logo">
+        <h2>New Order Received</h2>
+      </div>
+      <div class="content">
+        <h2>Customer Details</h2>
+        <p><strong>Name:</strong> {{ first_name }} {{ last_name }}</p>
+        <p><strong>Email:</strong> {{ email }}</p>
+        <p><strong>Phone:</strong> {{ phone }}</p>
+        <p><strong>Address:</strong> {{ address }}, {{ city }},
+          {{ postal_code}}, {{ country }}</p>
+
+        <h2>Order Details</h2>
+        <p><strong>Total Price:</strong> {{ total_price }} Kč</p>
+        <table class="items">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Long-Term Guarantee</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td><img src="{{ item.product_image }}"
+                  alt="{{ item.product_name }}" /></td>
+              <td>{{ item.product_name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>${{ item.price }}</td>
+              <td>
+                {% if item.long_term_guarantee_selected %}
+                ✅ Yes (1250 Kč per item)
+                {% else %}
+                ❌ No
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% if order_notes %}
+        <h2>Order Notes</h2>
+        <p>{{ order_notes }}</p>
+        {% endif %}
+
+        <a href="{{ admin_url }}" class="button">Open Order Details</a>
+      </div>
+      <div class="footer">
+        <p>Thank you for your attention!</p>
+      </div>
+    </div>
+  </body>
+</html>

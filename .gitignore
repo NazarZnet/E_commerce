@@ -1,6 +1,9 @@
 # Node.js dependencies
 frontend/node_modules/
 
+#Products gallery
+backend/static/media/product_gallery/
+
 # Python dependencies
 venv/
 /**/__pycache__/

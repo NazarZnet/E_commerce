@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: "Liter";
+  src: local("Liter-Regular"),
+    url('./assets/fonts/Liter-Regular.ttf')
+}
